@@ -101,17 +101,17 @@ export class BaseManager {
     if (!$$data) {
       return;
     }
+    console.log("Got rtc Data-->", $$data);
     const { rtc, js, icecandidate } = $$data;
     if (icecandidate) {
       return await this._pc.addIceCandidate(icecandidate);
     }
     if (rtc === "offer") {
       await this._pc.setRemoteDescription(js);
-      const answer = await this._pc.createAnswer();
-      await this._pc.setLocalDescription(answer);
+      await this._pc.setLocalDescription(await this._pc.createAnswer());
       return this._socket.send({
         type: "rtc_data",
-        data: { rtc: "answer", js: answer },
+        data: { rtc: "answer", js: this._pc.localDescription },
         peer: this._peer
       });
     }

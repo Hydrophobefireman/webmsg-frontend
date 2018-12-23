@@ -5,6 +5,9 @@ import "../css/main.css";
 import "../css/chat.css";
 import "../../assets/manifest.json";
 import _ from "./matspinner.js";
+import chatRoute from "./routes/chatroute.js";
+import userPageRoute from "./routes/userpageroute.js";
+import loginRoute from "./routes/loginroute.js";
 applyExternalCss("https://fonts.googleapis.com/css?family=Open+Sans");
 window.router = Router;
 const router = Router;
@@ -22,39 +25,12 @@ const logoutRoute = {
   },
   textContent: "Logging you out"
 };
-router.registerRoute(logoutRoute);
-const routeDict = {
-  "/u/": "userpageroute.js",
-  "/": "loginroute.js",
-  "/chat/": "chatroute.js"
-};
-const $import = x => (console.log(`importing "${x}"`), import(`${x}`));
 (async () => {
-  const i = router.getRouteName(router.currentRoute);
-  if (routeDict[i]) {
-    router.lazyload(i, $import(`./routes/${routeDict[i]}`));
-  } else if (i === "/logout/") {
-    router.startLoad();
-  }
-  routeDict[i] = undefined;
-  for (const rt of Object.keys(routeDict)) {
-    if (!routeDict[rt]) {
-      continue;
-    }
-    router.lazyload(rt, $import(`./routes/${routeDict[rt]}`), {
-      element: "div",
-      route: rt,
-      textContent: "loading",
-      children: [
-        {
-          element: "mat-spinner",
-          attrs: { svgstyle: "display:block;margin:auto" }
-        }
-      ]
-    });
+  for (var i of [chatRoute, userPageRoute, loginRoute]) {
+    router.registerRoute(i);
   }
 })();
-getConnection(router, false);
+getConnection(router, false).then(() => router.startLoad());
 const isSWReady = false;
 if ("serviceWorker" in navigator && isSWReady && ProdMode()) {
   navigator.serviceWorker.register("/sw.js").then(reg => {
