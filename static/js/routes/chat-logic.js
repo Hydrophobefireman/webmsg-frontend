@@ -15,7 +15,7 @@ import { MessageElement } from "../message-element.js";
 export const peerConnectionConfig = {
   iceServers: [
     {
-      urls: "stun:stun.l.google.com:19302?transport=tcp"
+      urls: "stun:stun.l.google.com:19302"
     }
   ]
 };
