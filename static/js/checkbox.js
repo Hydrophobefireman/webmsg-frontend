@@ -21,35 +21,49 @@ export class MatCheckBox extends HTMLElement {
     return this._checked;
   }
   static get observedAttributes() {
-    return ["checked"];
+    return ["checked", "boxstyle", "buttonstyle"];
   }
+
   attributeChangedCallback(b, _, val) {
-    let a;
-    if (val === "false" || val === "0") {
-      a = false;
-    } else {
-      a = true;
+    if (b === "checked") {
+      let a;
+      if (val === "false" || val === "0") {
+        a = false;
+      } else {
+        a = true;
+      }
+      return "checked" === b ? (this.checked = a) : void 0;
     }
-    return "checked" === b ? (this.checked = a) : void 0;
+    if (b === "boxstyle") {
+      return (this.boxtyle = val);
+    }
+    if (b === "buttonstyle") {
+      return (this.buttonstyle = val);
+    }
   }
   _createTemplate() {
-    const a = `.box{-webkit-tap-highlight-color:transparent;background-color:#fff;cursor:pointer;border-radius:100px;height:20px;width:50px;display:inline-flex;border:2px solid #e3e3e3}.button{box-shadow:0 1px 5px 0 #0009;display:block;margin-top:auto;margin-bottom:auto;height:inherit;border-radius:100%;border:none;width:20px;transition:all .2s ease-in-out 0s;cursor:pointer;outline:0}.button.clicked{margin-left:30px;background-color:#090090}`,
+    const a = `div{-webkit-tap-highlight-color:transparent;background-color:#fff;cursor:pointer;border-radius:100px;height:20px;width:50px;display:inline-flex;border:2px solid #e3e3e3}button{box-shadow:0 1px 5px 0 #0009;display:block;margin-top:auto;margin-bottom:auto;height:inherit;border-radius:100%;border:none;width:20px;transition:all .2s ease-in-out 0s;cursor:pointer;outline:0}button.clicked{margin-left:30px;background-color:#033577}`,
       b = document.createElement("div");
-    b.className = "box";
     const c = document.createElement("button");
-    (c.className = "button"), b.appendChild(c);
+    b.appendChild(c);
     const f = document.createElement("template"),
       g = document.createElement("style");
     return (g.innerHTML = a), (f.innerHTML = g.outerHTML + b.outerHTML), f;
   }
-  constructor() {
+  set boxtyle(v) {
+    return (this.box.style = v);
+  }
+  set buttonstyle(v) {
+    return (this.button.style = v);
+  }
+  constructor(boxstyle, buttonstyle) {
     super();
     const e = this._createTemplate(),
       f = this.attachShadow({ mode: "open" });
     f.appendChild(e.content.cloneNode(!0));
     this.button = (() => this.shadowRoot.querySelector("button"))();
-
-    this.addEventListener("click", e => {
+    this.box = (() => this.shadowRoot.querySelector("div"))();
+    this.box.addEventListener("click", e => {
       e.stopImmediatePropagation();
       if (this.checked) {
         return (this.checked = false);
@@ -57,6 +71,8 @@ export class MatCheckBox extends HTMLElement {
         return (this.checked = true);
       }
     });
+    boxstyle && (this.box.style = boxstyle);
+    buttonstyle && (this.button.style = buttonstyle);
   }
 }
 safeDefine("mat-checkbox", MatCheckBox);

@@ -3,29 +3,14 @@ const minifier = require("terser-webpack-plugin"),
   webpackPwaManifest = require("webpack-pwa-manifest"),
   MiniCssExtractPlugin = require("mini-css-extract-plugin"),
   StyleExtHtmlWebpackPlugin = require("style-ext-html-webpack-plugin");
-const mode = "development";
-// const mode = "production";
-const devOrProd = (a, b) => {
-  return "production" === mode ? a : b;
-};
-
+const mode = "production";
 module.exports = {
   devServer: { contentBase: `${__dirname}/docs`, compress: !0, port: 4200 },
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          { loader: MiniCssExtractPlugin.loader },
-          {
-            loader: "css-loader",
-            options: {
-              // modules: true,
-              // importLoaders: 1,
-              // localIdentName: "[sha1:hash:hex:4]"
-            }
-          }
-        ]
+        use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader"]
       },
       {
         test: /\.(png|jpg|gif|ico|svg)$/,
@@ -37,27 +22,21 @@ module.exports = {
   output: { path: `${__dirname}/docs`, filename: "[name]-[hash].js" },
   mode,
   optimization: {
-    minimizer: devOrProd([new minifier({ parallel: !0 })], []),
-    splitChunks: {
-      chunks: "all"
-    }
+    minimizer: [new minifier({ parallel: !0 })]
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: `${__dirname}/index.temp.html`,
       xhtml: !0,
       favicon: "./favicon.ico",
-      minify: devOrProd(
-        {
-          collapseBooleanAttributes: !0,
-          collapseWhitespace: !0,
-          html5: !0,
-          minifyCSS: !0,
-          removeEmptyAttributes: !0,
-          removeRedundantAttributes: !0
-        },
-        !1
-      )
+      minify: {
+        collapseBooleanAttributes: !0,
+        collapseWhitespace: !0,
+        html5: !0,
+        minifyCSS: !0,
+        removeEmptyAttributes: !0,
+        removeRedundantAttributes: !0
+      }
     }),
     new webpackPwaManifest({
       background_color: "#e3e3e3",
@@ -81,6 +60,6 @@ module.exports = {
       filename: "[name]-[hash].css",
       chunkFilename: "[id]-[hash].css"
     }),
-    new StyleExtHtmlWebpackPlugin({ minify: devOrProd(!0, !1) })
+    new StyleExtHtmlWebpackPlugin({ minify: true })
   ]
 };

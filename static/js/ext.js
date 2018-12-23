@@ -11,6 +11,9 @@ export const localWebsocketURL = a =>
   }${_URLHOST}/${a}`;
 class SocketConn {
   __defaultOnMessage(e) {
+    if (["ping", "pong"].includes(e.data)) {
+      return;
+    }
     const data = JSON.parse(e.data);
     this._socketID = data.socket_id;
   }
@@ -19,7 +22,7 @@ class SocketConn {
       this.socket = new WebSocket(localWebsocketURL(_ws_));
       this.socket.onopen = () => {
         this.socket.send("__init__");
-        this.socket.onmessage = __defaultOnMessage;
+        this.socket.onmessage = this.__defaultOnMessage;
         this._pingPongs();
         resolve(this.socket);
       };
@@ -39,12 +42,16 @@ class SocketConn {
   sendString(data) {
     return this.socket.send(data);
   }
+  /**
+   * @param {(MessageEvent) => void} func
+   */
   set onmessage(func) {
     this.socket.onmessage = e => {
       if (e.data === "ping" || e.data === "pong") {
         return;
+      } else {
+        return func(e);
       }
-      return func(e);
     };
   }
 
@@ -52,7 +59,10 @@ class SocketConn {
     return this.socket.readyState;
   }
   get isUsable() {
-    return [this.socket.OPEN, this.socket.CONNECTING].includes(
+    if (!this.socket) {
+      return true;
+    }
+    return [WebSocket.OPEN, WebSocket.CONNECTING].includes(
       this.socket.readyState
     );
   }
@@ -68,11 +78,15 @@ class SocketConn {
   }
   constructor() {}
 }
-let __socket__;
+let socketConnection;
+/**
+ * @returns {SocketConn}
+ *
+ */
 export const getSocket = () => {
-  return __socket__
-    ? __socket__ && __socket__.socket
-    : ((__socket__ = new SocketConn()), __socket__);
+  return !!(socketConnection || {}).isUsable
+    ? socketConnection
+    : ((socketConnection = new SocketConn()), socketConnection);
 };
 export class Requests {
   static async get(_url, relative = true, headers = {}) {
@@ -138,6 +152,18 @@ export const matInput = (() => {
         this.attrs.untouched = false;
         onfocus(this, placeHolderId);
       };
+      if (!listeners.keydown) {
+        defaultListeners.keydown = function(e) {
+          if (e.keyCode === 85 && e.ctrlKey) {
+            e.preventDefault();
+            this.$$element.value = this.$$element.value.slice(
+              this.$$element.selectionStart,
+              this.$$element.value.length
+            );
+            this.$$element.setSelectionRange(0, 0);
+          }
+        };
+      }
       if (!listeners.keyup) {
         defaultListeners.keyup = function() {
           return (this.attrs.value = this.$$element.value);
@@ -233,10 +259,14 @@ const _getConnOnError = (e, router) => {
   console.log(e);
   return (
     router.registerRoute(connErrComponent(router), !0),
-    setTimeout(() => router.pushStatus(503), 500)
+    setTimeout(
+      () => (router.pushStatus(503), (router.stopSubsequentRenders = true)),
+      500
+    )
   );
 };
-const _makeRequest = async () => {
+const _makeRequest = async (st = true) => {
+  router.stopSubsequentRenders = false;
   $.empty(router.root);
   router.root.appendChild(
     new MatSpinner(
@@ -262,10 +292,10 @@ const _makeRequest = async () => {
     })()
   );
   await Requests.get("/api/gen_204");
-  setTimeout(() => router.startLoad(), 450);
+  setTimeout(() => (st ? router.startLoad() : void 0), 450);
 };
-export async function getConnection(router) {
-  return retry(_makeRequest, 2, e => _getConnOnError(e, router));
+export async function getConnection(router, st) {
+  return retry(() => _makeRequest(st), 2, e => _getConnOnError(e, router));
 }
 
 class UtilsService {
@@ -293,7 +323,7 @@ class UtilsService {
     }
     try {
       const resp = await Requests.get("/api/getuser");
-      if (resp.ok) {
+      if (resp.ok && !resp.error) {
         const user = await resp.text();
         this.HERE = user.substr(3);
         if (getName) {
@@ -328,16 +358,120 @@ export const retry = async (func, rCount, onerror) => {
   }
   onerror(d);
 };
-
-export const noAuth = async data => {
+/**
+ *
+ * @param {any} data
+ * @param {HashChangeEvent} navdata
+ */
+export const noAuth = async (data, navdata = {}) => {
+  const next = `/?${urlencode({ continue: data || location.hash.substr(1) })}`;
+  const fullURL = `${location.protocol}//${location.host}/#${next}`;
   const user = await utilService.getUser(!0, !0);
   if (!user) {
-    return (
-      console.log("Not logged in"),
-      load(`/?${urlencode({ continue: data || location.hash.substr(1) })}`),
-      { stopExec: !0 }
-    );
+    if (fullURL == navdata.oldURL) {
+      console.log("Same url navigation");
+      return { stopExec: !0 };
+    } else {
+      return console.log("Not logged in"), load(next), { stopExec: !0 };
+    }
   } else {
     return false;
   }
 };
+const tmplate = (() => {
+  const a = document.createElement("template"),
+    b = makeCSS({
+      margin: "5px",
+      width: "fit-content",
+      "border-radius": "15px",
+      "max-width": "45%",
+      display: "flex",
+      padding: "6px",
+      "margin-top": "5px",
+      color: "#fff",
+      cursor: "pointer",
+      "text-align": "left",
+      "overflow-wrap": "break-word",
+      "word-break": "break-word"
+    });
+  return (a.innerHTML = `<style>:host{${b}}</style><slot></slot>`), a;
+})();
+//  class MessageElement extends HTMLElement {
+//   set _id(a) {
+//     (this._id_ = a), this.setAttribute("data-msgid", a);
+//   }
+//   get _id() {
+//     return this._id_;
+//   }
+//   constructor(a, b) {
+//     super();
+//     const c = this.attachShadow({
+//       mode: "open"
+//     });
+//     c.appendChild((a || tmplate).content.cloneNode(!0)),
+//       (this.meta = null),
+//       (this.data = null),
+//       (this._id_ = 0),
+//       b && (this.meta = b),
+//       (this._messagedata = null);
+//   }
+// }
+export const blobToArrayBuffer = a =>
+  new Promise((b, c) => {
+    const d = new FileReader();
+    (d.onload = e => b(e.target.result)),
+      (d.onerror = e => c(e)),
+      d.readAsArrayBuffer(a);
+  });
+export const arrayBufferToBlob = (a, b) =>
+  new Blob([a], {
+    type: b
+  });
+export const arrayBufferToBase64 = a =>
+  new Promise(b => {
+    const c = new Blob([a], {
+        type: "application/octet-binary"
+      }),
+      d = new FileReader();
+    (d.onload = e => {
+      const f = e.target.result;
+      b(f.substr(f.indexOf(",") + 1));
+    }),
+      d.readAsDataURL(c);
+  });
+export const base64ToArrayBuffer = async a => {
+  const b = await fetch(`data:application/octet-stream;base64,${a}`);
+  return await b.arrayBuffer();
+};
+export const base64ToBlob = async (a, b) =>
+  arrayBufferToBlob(await base64ToArrayBuffer(a), b);
+export const ImgAsBlob = async a => {
+  try {
+    const b = await fetch(a),
+      c = await b.blob();
+    return URL.createObjectURL(c);
+  } catch (b) {
+    return (
+      console.warn(
+        `An error occured while fetching:${a}.Returning ${a} back...`
+      ),
+      a
+    );
+  }
+};
+export function slidein(a) {
+  (a.style.overflow = "hidden"),
+    (a.style.padding = "0px"),
+    (a.style.opacity = 0),
+    (a.style.height = "0"),
+    (a.style.border = "none"),
+    (a.style.width = "0");
+}
+export function slideout(a) {
+  (a.style.padding = "5px"),
+    (a.style.opacity = 1),
+    (a.style.height = "auto"),
+    (a.style.width = "auto"),
+    (a.style.border = "2px solid #e3e3e3"),
+    (a.style.overflow = "visible");
+}

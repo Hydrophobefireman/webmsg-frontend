@@ -8,6 +8,26 @@ export const load = hash => {
       ? (location.hash = hash)
       : (location.hash = `/${hash}`);
 };
+export const Events = new class Events {
+  emit(type, detail) {
+    return window.dispatchEvent(new CustomEvent(type, { detail }));
+  }
+  listen(type, listener) {
+    this.EventCache[type] = listener;
+    return window.addEventListener(type, listener);
+  }
+  detroyEvt(type, listener) {
+    window.removeEventListener(type, listener);
+  }
+  destroyAll() {
+    for (const event of Object.keys(this.EventCache)) {
+      this.detroyEvt(event, this.EventCache[event]);
+    }
+  }
+  constructor() {
+    this.EventCache = {};
+  }
+}();
 export const parseHash = a => {
   let b, c;
   if ("#" === a[0]) b = a.substr(1);
@@ -53,10 +73,6 @@ export const setattrs = (element, attributes, stylesheet = sheet) => {
     if (!["$$element", "$$parent"].includes(key)) {
       const value = attributes[key];
       if (key === "class") {
-        // const classList = element.classList;
-        // while (classList.length > 0) {
-        //   classList.remove(classList.item(0));
-        // }
         if (typeof value === "string") {
           element.className = value;
         } else {
@@ -137,6 +153,12 @@ export const changeCSS = (a, b, c = !1) => {
   d = makeObjectFromCss(b);
   for (const f of Object.keys(d)) e.style[f] = d[f];
 };
+export const makeCSS = a => {
+  if ("string" == typeof a) return a;
+  const b = [];
+  for (const c of Object.keys(a)) b.push(`${c}:${a[c]}`);
+  return b.join(";");
+};
 export const makeObjectFromCss = a => {
   if ("object" == typeof a) return a;
   const b = a.split(";");
@@ -149,131 +171,38 @@ export const makeObjectFromCss = a => {
   }, {});
 };
 export const urlencode = a => {
-  return `${Object.keys(a)
-    .map(b => `${encodeURIComponent(b)}=${encodeURIComponent(a[b])}`)
-    .join("&")}`;
+  if (window.URLSearchParams) {
+    return new URLSearchParams(a);
+  } else {
+    return `${Object.keys(a)
+      .map(b => `${encodeURIComponent(b)}=${encodeURIComponent(a[b])}`)
+      .join("&")}`;
+  }
 };
-
-export const makeCSS = a => {
-  if ("string" == typeof a) return a;
-  const b = [];
-  for (const c of Object.keys(a)) b.push(`${c}:${a[c]}`);
-  return b.join(";");
-};
-export const stampFormat = a => {
+function isSameDay(c, d) {
+  return (
+    c.getFullYear() === d.getFullYear() &&
+    c.getMonth() === d.getMonth() &&
+    c.getDate() === d.getDate()
+  );
+}
+export const stampFormat = c => {
   try {
-    return Intl.DateTimeFormat("auto", {
-      hour: "numeric",
-      hour12: !0,
-      minute: "numeric",
-      second: "numeric",
-      year: "numeric",
-      month: "numeric",
-      day: "numeric"
-    }).format(new Date(a));
-  } catch (b) {
-    return new Date(a).toLocaleString();
+    const d = { hour: "numeric", hour12: !0, minute: "numeric" },
+      e = new Date(c),
+      f = new Date();
+    if (
+      (e.getFullYear() !== f.getFullYear() && (d.year = "numeric"),
+      isSameDay(e, f) || (d.month = d.day = "numeric"),
+      e.getMonth())
+    )
+      return Intl.DateTimeFormat("auto", d).format(e);
+  } catch (d) {
+    return console.log(d), new Date(c).toLocaleString();
   }
 };
 export const _getTime = () => new Date().getTime();
-const tmplate = (() => {
-  const a = document.createElement("template"),
-    b = makeCSS({
-      margin: "5px",
-      width: "fit-content",
-      "border-radius": "15px",
-      "max-width": "45%",
-      display: "flex",
-      padding: "6px",
-      "margin-top": "5px",
-      color: "#fff",
-      cursor: "pointer",
-      "text-align": "left",
-      "overflow-wrap": "break-word",
-      "word-break": "break-word"
-    });
-  return (a.innerHTML = `<style>:host{${b}}</style><slot></slot>`), a;
-})();
-export class MessageElement extends HTMLElement {
-  set _id(a) {
-    (this._id_ = a), this.setAttribute("data-msgid", a);
-  }
-  get _id() {
-    return this._id_;
-  }
-  constructor(a, b) {
-    super();
-    const c = this.attachShadow({
-      mode: "open"
-    });
-    c.appendChild((a || tmplate).content.cloneNode(!0)),
-      (this.meta = null),
-      (this.data = null),
-      (this._id_ = 0),
-      b && (this.meta = b),
-      (this._messagedata = null);
-  }
-}
-export const blobToArrayBuffer = a =>
-  new Promise((b, c) => {
-    const d = new FileReader();
-    (d.onload = e => b(e.target.result)),
-      (d.onerror = e => c(e)),
-      d.readAsArrayBuffer(a);
-  });
-export const arrayBufferToBlob = (a, b) =>
-  new Blob([a], {
-    type: b
-  });
-export const arrayBufferToBase64 = a =>
-  new Promise(b => {
-    const c = new Blob([a], {
-        type: "application/octet-binary"
-      }),
-      d = new FileReader();
-    (d.onload = e => {
-      const f = e.target.result;
-      b(f.substr(f.indexOf(",") + 1));
-    }),
-      d.readAsDataURL(c);
-  });
-export const base64ToArrayBuffer = async a => {
-  const b = await fetch(`data:application/octet-stream;base64,${a}`);
-  return await b.arrayBuffer();
-};
-export const base64ToBlob = async (a, b) =>
-  arrayBufferToBlob(await base64ToArrayBuffer(a), b);
-export const ImgAsBlob = async a => {
-  try {
-    const b = await fetch(a),
-      c = await b.blob();
-    return URL.createObjectURL(c);
-  } catch (b) {
-    return (
-      console.warn(
-        `An error occured while fetching:${a}.Returning ${a} back...`
-      ),
-      a
-    );
-  }
-};
-export function slidein(a) {
-  (a.style.overflow = "hidden"),
-    (a.style.padding = "0px"),
-    (a.style.opacity = 0),
-    (a.style.height = "0"),
-    (a.style.border = "none"),
-    (a.style.width = "0");
-}
-export function slideout(a) {
-  (a.style.padding = "5px"),
-    (a.style.opacity = 1),
-    (a.style.height = "auto"),
-    (a.style.width = "auto"),
-    (a.style.border = "2px solid #e3e3e3"),
-    (a.style.overflow = "visible");
-}
-export const apptSize = a => {
+export const aptSize = a => {
   const b = 0 | (a / 1048576);
   if (b) return `${b} MB`;
   const c = 0 | (a / 1024);

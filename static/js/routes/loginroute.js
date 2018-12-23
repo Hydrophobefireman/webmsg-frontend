@@ -224,9 +224,6 @@ const signupPassConfDiv = matInput(
     },
     keyup() {
       this.attrs.value = this.$$element.value;
-    },
-    focus() {
-      onfocus(this, "signupPassConfPH");
     }
   },
   !0
@@ -310,7 +307,7 @@ const errsAndNotices = {
     textContent: ""
   }
 };
-export const loginComponent = {
+export default {
   element: "div",
   attrs: {
     id: "auth-component",
@@ -321,8 +318,20 @@ export const loginComponent = {
   },
   async beforeRender() {
     if (await utilService.getUser(true)) {
-      load(`/u/${utilService.HERE}`);
-      return { stopExec: true };
+      const { qs } = parseHash(location);
+      const params = new URLSearchParams(qs);
+      const redir = params.get("continue");
+      if (redir) {
+        load(redir);
+        return { stopExec: true };
+      } else {
+        const next = `/u/${utilService.HERE}`;
+        if (this.getRouter().isUserGoingBack(next)) {
+          return { stopExec: true };
+        }
+        load(next);
+        return { stopExec: true };
+      }
     }
   },
   onrender: () => console.log("Rendered Login Component"),

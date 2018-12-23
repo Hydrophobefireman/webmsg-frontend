@@ -41,17 +41,28 @@ export const Router = new class Router {
     const conditionalElements = [...document.querySelectorAll("[_routerif]")];
     for (const element of conditionalElements) {
       const _condition = $.get(element, "_routerif");
-      const condition = new Function(`return ${_condition}`).call(this);
+      const _then = $.get(element, "_routerthen");
+      const condition = new Function("$", `return ${_condition}`).call(
+        this,
+        element
+      );
       if (condition) {
         const data = element.$;
         if (data) {
           element.replaceWith(data);
+          if (_then) {
+            new Function("$", _then).call(this, data);
+          }
         }
       } else {
         if (element.$ instanceof HTMLElement) {
           continue;
         }
-        const el = $.create("router-data", { _routerif: _condition });
+        const ret = { _routerif: _condition };
+        if (_then) {
+          ret._routerthen = _then;
+        }
+        const el = $.create("router-data", ret);
         el.$ = element;
         element.replaceWith(el);
       }
@@ -75,19 +86,24 @@ export const Router = new class Router {
     if (isAsync(func, args)) {
       return func.apply(obj, [args]).then(r => {
         if (el) {
-          setattrs(el, obj.attrs);
+          if ((r || {}).stopUpdate) {
+            setattrs(el, obj.attrs);
+          }
         }
         return r;
       });
     } else {
       const resp = func.apply(obj, [args]);
       if (el) {
-        setattrs(el, obj.attrs);
+        if (!(resp || {}).stopUpdate) {
+          setattrs(el, obj.attrs);
+        }
       }
       return resp;
     }
   }
   _setVars(r) {
+    this.stopSubsequentRenders = false;
     this.root = r;
     this.routeMap = {};
     this.routes = [];
@@ -118,8 +134,17 @@ export const Router = new class Router {
   }
   constructor(root = window.$ROOT || $.id("app-root") || $.q("body")) {
     this._setVars(root);
-    window.onhashchange = () => (this.routeChange(), this._runDirectives());
+    window.onhashchange = w => {
+      return (this.navData = w), this.routeChange(), this._runDirectives();
+    };
     this._runDirectives();
+  }
+  isUserGoingBack(nextRoute) {
+    const navDat = this.navData || {},
+      fullURL = `${location.protocol}//${location.host}/#${nextRoute}`;
+    return (
+      !(fullURL != navDat.oldURL) && (console.log("Same url navigation"), !0)
+    );
   }
   routeParser(a) {
     const { path } = this.parseHash(a);
@@ -127,6 +152,29 @@ export const Router = new class Router {
   }
   load(hash) {
     return _load(hash);
+  }
+
+  lazyload(route, componentPromise, loadingComponent) {
+    if (!loadingComponent) {
+      this.registerRoute({
+        route,
+        element: "div",
+        textContent: "loading",
+        attrs: { style: { margin: "100px" } }
+      });
+    } else {
+      this.registerRoute(loadingComponent);
+    }
+    const toLoad = this.getRouteName(this.currentRoute) === route;
+    if (toLoad) {
+      this.startLoad();
+    }
+    return componentPromise.then(mod => {
+      this.registerRoute(mod.default);
+      if (toLoad) {
+        return this.startLoad();
+      }
+    });
   }
   get currentQS() {
     const { qs } = this.parseHash(location.hash);
@@ -144,6 +192,14 @@ export const Router = new class Router {
     return b
       ? this.render(b, this.root, !0)
       : this.render(this.statusHandler[404]);
+  }
+  getRouteName(e) {
+    const f = e.split("/").filter(h => h)[0];
+    if (f) {
+      return `/${f}/`;
+    } else {
+      return "/";
+    }
   }
   isValidRoute(e) {
     if (this.routes.includes(e))
@@ -235,6 +291,10 @@ export const Router = new class Router {
     };
   }
   async render(obj, parent, toEmpty = false, _routerArgs, parentAttrs) {
+    if (this.stopSubsequentRenders) {
+      console.log("preventing render");
+      return;
+    }
     if (!obj) {
       return;
     }
@@ -319,7 +379,9 @@ export const Router = new class Router {
       const code = obj.status;
       this.statusHandler[code] = obj;
     } else {
-      this.routes.push(obj.route);
+      if (!this.routes.includes(obj.route)) {
+        this.routes.push(obj.route);
+      }
       const {
         element,
         children,
@@ -366,6 +428,28 @@ safeDefine(
   class extends HTMLElement {
     constructor() {
       super();
+      const a = this.attachShadow({ mode: "open" });
+      a.appendChild(
+        (() => {
+          return Object.assign(document.createElement("style"), {
+            innerHTML: ":host{display:none}"
+          });
+        })()
+      );
     }
   }
 );
+
+export const applyExternalCss = async a => {
+  let b;
+  try {
+    return (
+      (b = document.createElement("link")),
+      (b.href = a),
+      (b.rel = "stylesheet"),
+      document.head.appendChild(b)
+    );
+  } catch (e) {
+    console.log("Could not append stylesheet", e);
+  }
+};

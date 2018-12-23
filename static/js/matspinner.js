@@ -32,14 +32,12 @@ export default class MatSpinner extends HTMLElement {
       : "circlestyle" === a && (this.circlestyle = c);
   }
   createTemplate() {
-    const a = `.__spinner__{display:inline-block;width: 65px;height: 65px;animation:rotator 1.4s linear infinite}@keyframes rotator{0%{transform:rotate(0)}100%{transform:rotate(270deg)}}.__path__{stroke:#6f70ee;stroke-dasharray:120;stroke-dashoffset:0;transform-origin:center;animation:dash 1.4s ease-in-out infinite}@keyframes dash{0%{stroke-dashoffset:120}50%{stroke-dasharray:200;stroke-dashoffset:120/4;transform:rotate(135deg)}100%{stroke-dashoffset:120;transform:rotate(450deg)}}`,
+    const a = `svg{display:inline-block;width: 65px;height: 65px;animation:rotator 1.4s linear infinite}@keyframes rotator{0%{transform:rotate(0)}100%{transform:rotate(270deg)}}circle{stroke:#6f70ee;stroke-dasharray:120;stroke-dashoffset:0;transform-origin:center;animation:dash 1.4s ease-in-out infinite}@keyframes dash{0%{stroke-dashoffset:120}50%{stroke-dasharray:200;stroke-dashoffset:190;transform:rotate(135deg)}100%{stroke-dashoffset:120;transform:rotate(450deg)}}`,
       b = $.create("svg", {
-        class: "__spinner__",
         viewbox: "0 0 66 66",
         xmlns: "http://www.w3.org/2000/svg"
       }),
       c = $.create("circle", {
-        class: "__path__",
         fill: "none",
         "stroke-width": 6,
         "stroke-linecap": "round",
@@ -57,8 +55,8 @@ export default class MatSpinner extends HTMLElement {
     const e = this.createTemplate(),
       f = this.attachShadow({ mode: "open" });
     f.appendChild(e.content.cloneNode(!0)),
-      (this.svg = () => this.shadowRoot.querySelector(".__spinner__")),
-      (this.circle = () => this.shadowRoot.querySelector(".__path__")),
+      (this.svg = () => this.shadowRoot.querySelector("svg")),
+      (this.circle = () => this.shadowRoot.querySelector("circle")),
       size && (this.size = size),
       color && (this.color = color),
       svgstyle && (this.svg().style = svgstyle),
