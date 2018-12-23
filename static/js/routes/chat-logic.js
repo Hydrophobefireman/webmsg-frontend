@@ -326,6 +326,7 @@ export class MessageManager extends BaseManager {
     if (this.__USEWEBSOCKETFALLBACK__) {
       this._socket.send(data);
     } else {
+      console.log(this._dc);
       this._dc.send(JSON.stringify(data));
     }
     const msgid = this._onUserMessage({
@@ -434,7 +435,7 @@ export class MessageManager extends BaseManager {
   }
   _sendBinaryFile(f) {
     if (this.__USEWEBSOCKETFALLBACK__) {
-    genarateInlineNotification()
+      genarateInlineNotification();
     }
   }
   get _latestMessageElement() {
