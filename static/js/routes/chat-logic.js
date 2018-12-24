@@ -277,25 +277,6 @@ export class MessageManager extends BaseManager {
       this.peerstatus.$$element.textContent = is_online;
     } catch (_) {}
   }
-  async __removeUnreadMessages($stamp) {
-    const msgs = await IDB.get(this._chat_id);
-    const fn = async function(e) {
-      e.read = true;
-      e.rstamp = e.rstamp || $stamp;
-      return e;
-    };
-    if (msgs) {
-      const chats = msgs.chats;
-      for (const mg of Object.keys(chats)) {
-        const _e = chats[mg];
-        if (_e.sender !== this.peer && !_e.read) {
-          chats[mg] = await fn.call(this, _e);
-        }
-      }
-      msgs.chats = chats;
-      return await IDB.set(this.chat_id, msgs);
-    }
-  }
   _onUserMessage({ detail }) {
     let _data;
     if (!detail) {
@@ -325,7 +306,6 @@ export class MessageManager extends BaseManager {
       );
       this._textarea.$$element.appendChild(div);
       div.scrollIntoView();
-      this.__removeUnreadMessages(dat.stamp);
       return this._lastMessageID;
     } else if (type === "typing" && sender === this._peer) {
       clearTimeout(this.___typingTimeout);
