@@ -8,6 +8,7 @@ import _ from "./matspinner.js";
 import chatRoute from "./routes/chatroute.js";
 import userPageRoute from "./routes/userpageroute.js";
 import loginRoute from "./routes/loginroute.js";
+// import babel from "@babel/runtime";
 applyExternalCss("https://fonts.googleapis.com/css?family=Open+Sans");
 window.router = Router;
 const router = Router;

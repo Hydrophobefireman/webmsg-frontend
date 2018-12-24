@@ -9,6 +9,17 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.m?js$/,
+        exclude: /(node_modules)/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-transform-runtime"]
+          }
+        }
+      },
+      {
         test: /\.css$/,
         use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader"]
       },
@@ -22,7 +33,10 @@ module.exports = {
   output: { path: `${__dirname}/docs`, filename: "[name]-[hash].js" },
   mode,
   optimization: {
-    minimizer: [new minifier({ parallel: !0 })]
+    minimizer: [new minifier({ parallel: !0 })],
+    splitChunks: {
+      chunks: "all"
+    }
   },
   plugins: [
     new HtmlWebpackPlugin({
