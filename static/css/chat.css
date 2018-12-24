@@ -149,4 +149,5 @@ div[notification] {
   flex: 1;
   align-self: flex-end;
   margin-right: 15px;
+  -webkit-tap-highlight-color: transparent;
 }
