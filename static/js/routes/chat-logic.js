@@ -240,6 +240,7 @@ export class BaseManager {
     }
     Events.listen("use-rtc", e => {
       if (e) {
+        this._getUpdatesFromServer();
         return this._startRTCPings();
       }
       return (this._canUseRTC = false);
