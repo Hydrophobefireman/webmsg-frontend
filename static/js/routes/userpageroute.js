@@ -94,9 +94,8 @@ function prevChatsFetch(e) {
       const users = data.previous_chats || [];
       if (!users.length) {
         spinner.remove();
-        msg.attrs.textContent =
+        msg.$$element.textContent =
           "An error occured while searching for your chats";
-        msg.update();
         throw new Error("$bad length");
       }
       const components = [];

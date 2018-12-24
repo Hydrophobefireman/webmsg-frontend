@@ -14,9 +14,11 @@ import { IDB } from "../idb.js";
 import { MessageElement } from "../message-element.js";
 export const peerConnectionConfig = {
   iceServers: [
-    {
-      urls: "stun:stun.l.google.com:19302"
-    }
+    { url: "stun:stun.l.google.com:19302" },
+    { url: "stun:stun1.l.google.com:19302" },
+    { url: "stun:stun2.l.google.com:19302" },
+    { url: "stun:stun3.l.google.com:19302" },
+    { url: "stun:stun4.l.google.com:19302" }
   ]
 };
 const genarateInlineNotification = message => {
@@ -79,11 +81,13 @@ export class BaseManager {
   }
   async _startRTCPings() {
     const offerer = this._isOfferer;
+    this._pc = new RTCPeerConnection(peerConnectionConfig);
+    this._pc.onicecandidate = e => this._onIceCandidate(e);
+    this._pc.oniceconnectionstatechange = e => this._iceStateChange(e);
     if (offerer) {
       this._dc = this._pc.createDataChannel(_random());
       const offer = await this._pc.createOffer();
       await this._pc.setLocalDescription(offer);
-      this._pc.onicecandidate = e => this._onIceCandidate(e);
       this._socket.send({
         type: "rtc_data",
         data: { rtc: "offer", js: offer },
@@ -226,8 +230,6 @@ export class BaseManager {
     });
     this._pc = null;
     this._isOfferer = null;
-    this._pc = new RTCPeerConnection(peerConnectionConfig);
-    this._pc.oniceconnectionstatechange = e => this._iceStateChange(e);
     this._dc = null;
     if (!this._socket.isUsable || !this._socket.socket) {
       await this._socket.startConn("_/data/");

@@ -4,39 +4,7 @@ import { getElement, $, Events } from "../router/utils";
 import { getChatData, MessageManager, updateDb } from "./chat-logic.js";
 import { noAuth } from "../ext";
 import { IDB } from "../idb";
-function inputOnkeyDown(a) {
-  return 85 === a.keyCode && a.ctrlKey
-    ? (a.preventDefault(),
-      void ((this.$$element.value = this.$$element.value.slice(
-        this.$$element.selectionStart,
-        this.$$element.value.length
-      )),
-      this.$$element.setSelectionRange(0, 0)))
-    : 13 === a.keyCode
-    ? (this.attrs.value || "").trim()
-      ? console.log("Add-send Function")
-      : void 0
-    : ((this.attrs.value = this.$$element.value),
-      console.log("Typing Indicator"));
-}
-function inputOnKeyUp() {
-  const inpVal = (this.$$element.value || "").trim(),
-    sendButton = getElement(this, "sendbtn"),
-    attachBtn = getElement(this, "attachbtn");
-  return (
-    inpVal
-      ? attachBtn.$$element.parentElement &&
-        ((attachBtn.$$element.style.transform = "translate(200px,0px)"),
-        setTimeout(() => (sendButton.add(), attachBtn.remove()), 170))
-      : (attachBtn.add(),
-        sendButton.remove(),
-        setTimeout(
-          () => (attachBtn.$$element.style.transform = "translate(0px,0px)"),
-          20
-        )),
-    (this.attrs.value = this.$$element.value)
-  );
-}
+
 const typingBox = {
   element: "div",
   attrs: {
