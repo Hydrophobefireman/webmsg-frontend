@@ -298,7 +298,7 @@ export class MessageManager extends BaseManager {
       const dat = { ...data, sender, receiver: data.peer };
       obj[this._lastMessageID] = dat;
       console.log("UPDATE----->", obj);
-      updateDb(this._chat_id, obj);
+      updateDb(obj.chat_id, obj);
       const div = new MessageElement(
         dat,
         this._lastMessageID,
