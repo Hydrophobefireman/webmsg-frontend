@@ -25,6 +25,7 @@ const logoutRoute = {
   },
   textContent: "Logging you out"
 };
+router.registerRoute(logoutRoute);
 (async () => {
   for (var i of [chatRoute, userPageRoute, loginRoute]) {
     router.registerRoute(i);

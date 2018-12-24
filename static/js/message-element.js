@@ -24,7 +24,7 @@ export class MessageElement extends HTMLElement {
     this.$id = id;
     const template = document.createElement("template");
     this.user = user;
-    template.innerHTML = `<style>[message]{text-align:justify;margin:5px;width:fit-content;border-radius:15px;max-width:45%;display:flex;padding:6px;cursor:pointer;overflow-wrap:break-word;word-break:break-word}[message].sent{background:#d2e3fc;color:#174ea6;margin-left:auto}[message].received{margin-right:auto;background-color:#f1f3f4;color:#000000de}[time]{display:flex;font-weight:200;color: #0000005e;font-size:12px;margin:10px;-webkit-transition:.2s;transition:.2s;-webkit-transform:translate(0,0);transform:translate(0,0)}[time].sent{flex-direction:row-reverse;}[time].received{flex-direction:row}</style><div message></div><div time></div>`;
+    template.innerHTML = `<style>:host{display:flex;flex-direction:column}:host.received{textalign:left}:host.sent{text-align:right}[message]{text-align:justify;margin:5px;width:fit-content;border-radius:15px;max-width:45%;display:inline-flex;padding:6px;cursor:pointer;overflow-wrap:break-word;word-break:break-word}[message].sent{background:#d2e3fc;color:#174ea6;margin-left:auto}[message].received{margin-right:auto;background-color:#f1f3f4;color:#000000de}[time]{display:flex;font-weight:200;color: #0000005e;font-size:12px;margin:10px;-webkit-transition:.2s;transition:.2s;-webkit-transform:translate(0,0);transform:translate(0,0)}[time].sent{flex-direction:row-reverse;}[time].received{flex-direction:row}</style><div message></div><div time></div>`;
     const f = this.attachShadow({ mode: "open" });
     f.appendChild(template.content.cloneNode(!0));
     this.msg = f.querySelector("div[message]");
@@ -34,9 +34,11 @@ export class MessageElement extends HTMLElement {
     if (this.sender === peer) {
       this.msg.classList.add("received");
       this.time.classList.add("received");
+      this.classList.add("received");
     } else if (this.sender === user) {
       this.msg.classList.add("sent");
       this.time.classList.add("sent");
+      this.classList.add("sent");
     }
     try {
       this.msg.appendChild(this._messageOrMedia());

@@ -77,6 +77,8 @@ div[notification] {
   color: #fff;
   cursor: pointer;
   border-radius: 20px;
+  transition: 0.3s ease-in-out;
+  transform: translate(0px, 2000px);
   padding: 10px;
 }
 .peername {

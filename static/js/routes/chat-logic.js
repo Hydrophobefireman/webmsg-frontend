@@ -14,15 +14,15 @@ import { IDB } from "../idb.js";
 import { MessageElement } from "../message-element.js";
 export const peerConnectionConfig = {
   iceServers: [
-    { url: "stun:stun.l.google.com:19302" },
-    { url: "stun:stun1.l.google.com:19302" },
-    { url: "stun:stun2.l.google.com:19302" },
-    { url: "stun:stun3.l.google.com:19302" },
-    { url: "stun:stun4.l.google.com:19302" }
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" }
   ]
 };
-const genarateInlineNotification = message => {
-  return $.create("div", { notification: true, textContent: message });
+
+const generateInlineNotification = message => {
+  const div = $.create("div", { notification: true, textContent: message });
+  div.onclick = () => div.remove();
+  return div;
 };
 export class BaseManager {
   static async validateChatId(id) {
@@ -47,7 +47,7 @@ export class BaseManager {
     }
   }
   _iceStateChange() {
-    this._pc.oniceconnectionstatechange = async e => {
+    this._pc.oniceconnectionstatechange = async () => {
       try {
         if (this.__unrendering__) {
           return;
@@ -61,7 +61,7 @@ export class BaseManager {
           this.__USEWEBSOCKETFALLBACK__ = true; //dont lose a second
           setTimeout(async () => {
             await this._startConn();
-          }, 50);
+          }, 2);
           const data = await getChatData(this._chat_id);
           this.peer = data["peer"];
           this._is_online = data["is_online"];
@@ -108,7 +108,11 @@ export class BaseManager {
     console.log("Got rtc Data-->", $$data);
     const { rtc, js, icecandidate } = $$data;
     if (icecandidate) {
-      return await this._pc.addIceCandidate(icecandidate);
+      if (this._pc) {
+        return await this._pc.addIceCandidate(icecandidate);
+      } else {
+        // this._startConn();
+      }
     }
     if (rtc === "offer") {
       await this._pc.setRemoteDescription(js);
@@ -191,6 +195,12 @@ export class BaseManager {
     if (type === "message-relay") {
       Events.emit("chat_message", data);
     }
+    if (type === "binary-file") {
+      const div = generateInlineNotification(`${this._peer} is sending a file`);
+      document.body.appendChild(div);
+      div.style.transform = "translate(0px,0px)";
+      setTimeout(() => div.remove(), 1500);
+    }
     if (type == "get-update") {
       const msgid = data.msgid;
       if (this.getElementByMessageId(msgid)) {
@@ -209,6 +219,9 @@ export class BaseManager {
       }
     }
     if (type === "chat-update") {
+      this._updateMessages([data]);
+    }
+    if (type == "ping-update") {
       this._updateMessages(data);
     }
   }
@@ -222,6 +235,9 @@ export class BaseManager {
   }
   async _startConn() {
     this.updateUI();
+    if (Events.EventCache["use-rtc"]) {
+      Events.detroyEvt("use-rtc");
+    }
     Events.listen("use-rtc", e => {
       if (e) {
         return this._startRTCPings();
@@ -233,6 +249,7 @@ export class BaseManager {
     this._dc = null;
     if (!this._socket.isUsable || !this._socket.socket) {
       await this._socket.startConn("_/data/");
+      this.__updateTimeout__();
     }
     this._socket.send({ type: "start_chat", peer: this._peer });
     this._socket.onmessage = e => this._onWSmessage.call(this, e);
@@ -322,15 +339,17 @@ export class MessageManager extends BaseManager {
       this._dc.send(JSON.stringify({ type: "typing", sender: this._user }));
     }
   }
+  __sendMessage(data) {
+    if (this.__USEWEBSOCKETFALLBACK__) {
+      return this._socket.send(data);
+    } else {
+      return this._dc.send(JSON.stringify(data));
+    }
+  }
   _sendMessageAndUpdateDataBase(e) {
     const data = this._GenerateMessageTemplate(e);
     this._input.$$element.value = "";
-    if (this.__USEWEBSOCKETFALLBACK__) {
-      this._socket.send(data);
-    } else {
-      console.log(this._dc);
-      this._dc.send(JSON.stringify(data));
-    }
+    this.__sendMessage(data);
     const msgid = this._onUserMessage({
       detail: { ...data, sender: this._user, receiver: this._peer }
     });
@@ -380,16 +399,18 @@ export class MessageManager extends BaseManager {
       );
     this._submit_button.reRender();
   }
-  async _updateMessages(ud) {
-    const { update_type, msg, rstamp, chat_id } = ud;
-    if (update_type === "read") {
-      const db = await IDB.get(chat_id);
-      if (db) {
-        const chats = db.chats;
-        chats[msg].read = true;
-        chats[msg].rstamp = rstamp;
-        db.chats = chats;
-        await IDB.set(chat_id, db);
+  async _updateMessages(udList) {
+    for (const ud of udList) {
+      const { update_type, msg, rstamp, chat_id } = ud;
+      if (update_type === "read") {
+        const db = await IDB.get(chat_id);
+        if (db) {
+          const chats = db.chats;
+          chats[msg].read = true;
+          chats[msg].rstamp = rstamp;
+          db.chats = chats;
+          await IDB.set(chat_id, db);
+        }
         this.getElementByMessageId(msg).setRead(true, rstamp);
       }
     }
@@ -409,7 +430,7 @@ export class MessageManager extends BaseManager {
       }
     }
   }
-  async _getPreviousMessages() {
+  async _getUpdatesFromServer() {
     const $data = (await IDB.get(this._chat_id)) || {};
     const data = $data.chats || {};
     console.log("idb data-->", data);
@@ -430,16 +451,24 @@ export class MessageManager extends BaseManager {
     const messages = resp.message_data.messages;
     this._renderFetchedMessages(messages);
     await updateDb(this._chat_id, messages);
-    // this._updateMessages((resp.update_data || {}).updates);
     this._latestMessageElement
       ? this._latestMessageElement.scrollIntoView()
       : void 0;
   }
-  _sendBinaryFile(f) {
-    if (this.__USEWEBSOCKETFALLBACK__) {
-      genarateInlineNotification();
-    }
+  async _sendBinaryFile(_f) {
+    const div = generateInlineNotification(`Sending File to ${this._peer}`);
+    document.body.appendChild(div);
+    div.style.transform = "translate(0px,0px)";
+    setTimeout(() => div.remove(), 1500);
+    const resp = new Response(_f);
+    const fle = await resp.arrayBuffer();
+    this.__sendMessage({ type: "binary-file", data: {}, peer: this._peer });
+    const req = await Requests.post("/@/binary/", true, fle);
+    const fr = await req.json();
+    const url = fr.url;
+    this._sendMessageAndUpdateDataBase({ media: true, mediaURL: url });
   }
+
   get _latestMessageElement() {
     if (!this._lastMessageID) {
       return;
@@ -449,8 +478,39 @@ export class MessageManager extends BaseManager {
   getElementByMessageId(id) {
     return $.q(`text-message[msg-id="${id}"]`);
   }
+  __updateTimeout__() {
+    this.__socketInterval__ = setInterval(async () => {
+      const msgs = await this._getUnreadMessages();
+      if (!msgs) {
+        return;
+      }
+      this._socket.send({
+        type: "fetch-update",
+        data: {
+          msgids: msgs,
+          chat_id: this._chat_id
+        },
+        peer: this._peer
+      });
+    }, 15000);
+  }
+  async _getUnreadMessages() {
+    const resp = [],
+      messages = (await IDB.get(this._chat_id)) || {},
+      chats = messages.chats;
+    if (chats) {
+      for (const i of Object.keys(chats)) {
+        const msg = chats[i];
+        if (msg.read || msg.sender !== this._user) continue;
+        else resp.push(i);
+      }
+      return resp.length ? resp : null;
+    }
+    return null;
+  }
   constructor(initDict, textarea, socket = getSocket()) {
     super();
+    clearInterval(this.__socketInterval__);
     Events.destroyAll();
     Events.listen("attach-img", ({ detail }) =>
       this._sendBinaryFile.call(this, detail)
@@ -461,6 +521,7 @@ export class MessageManager extends BaseManager {
       Events.destroyAll();
       if (this._pc) {
         this._socket.close();
+        clearInterval(this.__socketInterval__);
         this.__unrendering__ = true;
         this._pc.close();
         this._pc = this._dc = this._peer = this._chat_id = this._isOfferer = null;
@@ -479,7 +540,7 @@ export class MessageManager extends BaseManager {
     this._input = getElement(this._textarea, "chat_type");
     this._submit_button = getElement(this._textarea, "sendbtn");
     this._socket = socket;
-    this._getPreviousMessages();
+    this._getUpdatesFromServer();
     this._startConn();
     this._setUpDataInputListeners();
   }
