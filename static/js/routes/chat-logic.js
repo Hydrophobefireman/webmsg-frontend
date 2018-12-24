@@ -462,7 +462,7 @@ export class MessageManager extends BaseManager {
     setTimeout(() => div.remove(), 1500);
     const resp = new Response(_f);
     const fle = await resp.arrayBuffer();
-    this.__sendMessage({ type: "binary-file", data: {}, peer: this._peer });
+    this._socket.send({ type: "binary-file", data: {}, peer: this._peer });
     const req = await Requests.post("/@/binary/", true, fle);
     const fr = await req.json();
     const url = fr.url;
