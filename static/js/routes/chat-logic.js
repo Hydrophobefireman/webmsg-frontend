@@ -162,7 +162,7 @@ export class BaseManager {
       return notify.startTick();
     }
     if (!this._is_online) {
-      this._is_online = "online";
+      this._is_online = "--";
       this.updateUI();
     }
     if (type === "online_status") {
@@ -298,7 +298,7 @@ export class MessageManager extends BaseManager {
       const dat = { ...data, sender, receiver: data.peer };
       obj[this._lastMessageID] = dat;
       console.log("UPDATE----->", obj);
-      updateDb(obj.chat_id, obj);
+      updateDb(dat.chat_id, obj);
       const div = new MessageElement(
         dat,
         this._lastMessageID,
