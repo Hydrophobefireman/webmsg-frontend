@@ -27,7 +27,7 @@ const generateInlineNotification = message => {
 export class BaseManager {
   static async validateChatId(id) {
     const req = await Requests.post(
-        "/api/validate-chat",
+        "/api/chat-stats",
         !0,
         urlencode({ chat_id: id })
       ),
