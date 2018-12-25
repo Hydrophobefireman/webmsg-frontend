@@ -34,7 +34,9 @@ function IsApiOrNone(req) {
   const url = new URL(req.url);
   if (!navigator.onLine) {
     if (url.pathname === "/api/gen_204/") {
-      return new Response("");
+      return new Response("sw cached", {
+        headers: { "content-type": "text/plain" }
+      });
     } else if (url.pathname.includes("/api/chat-stats/")) {
       return new Response(JSON.stringify({ $$serviceWorker$$: true }), {
         headers: {
