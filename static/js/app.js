@@ -34,7 +34,7 @@ router.registerRoute(logoutRoute);
 })();
 getConnection(router, false).then(() => router.startLoad());
 const isSWReady = true;
-if ("serviceWorker" in navigator && isSWReady && !ProdMode()) {
+if ("serviceWorker" in navigator && isSWReady && ProdMode()) {
   const reg = runtime.register();
   reg.then(e => console.log("SW registered.", e.scope));
 }
