@@ -1,8 +1,6 @@
 const { assets } = serviceWorkerOption;
 const CACHE_NAME = +new Date();
-const assetsToCache = [...assets, "./"].map(
-  path => new URL(path, self.location).href
-);
+const assetsToCache = [...assets, "./"];
 self.addEventListener("install", event => {
   console.log("[SW] Installed");
   self.skipWaiting();
