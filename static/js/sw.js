@@ -1,5 +1,5 @@
 const { assets } = serviceWorkerOption;
-const CACHE_NAME = +new Date();
+const CACHE_NAME = `CACHE-V${new Date()}`;
 const assetsToCache = [...assets, "./"];
 self.addEventListener("install", event => {
   console.log("[SW] Installed");
@@ -13,19 +13,19 @@ self.addEventListener("install", event => {
 });
 
 self.addEventListener("activate", event => {
-  console.log("[SW]Active");
+  console.log("[SW]Activated");
   event.waitUntil(
-    caches.keys().then(cacheMap => {
-      cacheMap.map(cacheName => {
-        if (cacheName !== CACHE_NAME) {
-          return caches.delete(cacheName);
-        }
-        return;
-      });
-    })
+    caches
+      .keys()
+      .then(cacheNames =>
+        Promise.all(
+          cacheNames
+            .filter(cacheName => cacheName !== CACHE_NAME)
+            .map(cacheName => caches.delete(cacheName))
+        )
+      )
   );
 });
-
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches
