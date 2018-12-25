@@ -3,7 +3,6 @@ const CACHE_NAME = +new Date();
 const assetsToCache = [...assets, "./"];
 self.addEventListener("install", event => {
   console.log("[SW] Installed");
-  self.skipWaiting();
   event.waitUntil(
     caches
       .open(CACHE_NAME)
@@ -27,14 +26,15 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
+  if (event.request.mode === "navigate") {
+    return event.respondWith(caches.match("./"));
+  }
   event.respondWith(
     caches
       .match(event.request)
       .then(response => response || fetch(event.request))
       .catch(() => {
-        if (event.request.mode === "navigate") {
-          return caches.match("./");
-        }
+        console.log("Err");
       })
   );
 });
