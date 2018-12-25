@@ -77,8 +77,9 @@ export class BaseManager {
   }
   _onDataChannel() {
     console.log(`[isOfferer=${this._isOfferer}]started data channel`, this._dc);
-    this._dc.addEventListener("message", ({ data }) =>
-      Events.emit("chat_message", data)
+    this._dc.addEventListener(
+      "message",
+      ({ data }) => (Events.emit("chat_message", data), console.log(data))
     );
     this.__USEWEBSOCKETFALLBACK__ = false;
   }
@@ -239,7 +240,6 @@ export class BaseManager {
     }
     Events.listen("use-rtc", e => {
       if (e) {
-        this._getUpdatesFromServer();
         return this._startRTCPings();
       }
       return (this._canUseRTC = false);
@@ -291,7 +291,6 @@ export class MessageManager extends BaseManager {
       return console.warn(e);
     }
     const { type, sender, data } = _data;
-    console.log(_data);
     if (type === "message-relay") {
       this._lastMessageID += 1;
       const obj = {};
@@ -421,7 +420,7 @@ export class MessageManager extends BaseManager {
     for (const id of keys) {
       const $data = data[id];
       this._lastMessageID = parseInt(id);
-      if (!this._latestMessageElement) {
+      if (!this.getElementByMessageId(id)) {
         if (!$data) {
         }
         const msg = new MessageElement($data, id, this._peer, this._user);
