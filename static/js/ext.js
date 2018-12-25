@@ -315,6 +315,9 @@ class UtilsService {
     return resp;
   }
   async getUser(forceRecheck = false, getName = false) {
+    if (!navigator.onLine && this.HERE) {
+      return this.HERE;
+    }
     if (this.HERE && !forceRecheck) {
       if (getName) {
         return this.HERE;
