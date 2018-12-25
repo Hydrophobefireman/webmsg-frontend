@@ -4,6 +4,7 @@ const assetsToCache = [...assets, "./"];
 self.addEventListener("install", event => {
   console.log("[SW] Installed");
   event.waitUntil(
+    self.skipWaiting(),
     caches
       .open(CACHE_NAME)
       .then(cache => cache.addAll(assetsToCache))
@@ -15,6 +16,7 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
   console.log("[SW]Activated");
   event.waitUntil(
+    clients.claim(),
     caches
       .keys()
       .then(cacheNames =>
@@ -59,7 +61,7 @@ self.addEventListener("fetch", event => {
       .then(response => response || IsApiOrNone(event.request))
       .catch(() => {
         if (event.request.mode === "navigate") {
-          return event.respondWith(caches.match("./"));
+          return caches.match("./");
         }
       })
   );
