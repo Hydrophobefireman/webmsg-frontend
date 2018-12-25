@@ -44,6 +44,8 @@ function IsApiOrNone(req) {
       });
     }
     return fetch(req);
+  } else {
+    return fetch(req);
   }
 }
 self.addEventListener("fetch", event => {
