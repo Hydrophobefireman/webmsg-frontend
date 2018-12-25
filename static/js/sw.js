@@ -67,7 +67,7 @@ self.addEventListener("fetch", event => {
         // User is landing on our page.
         if (event.request.mode === "navigate") {
           console.log("navigation");
-          return global.caches.match("./");
+          return event.respondWith(global.caches.match("./"));
         }
         return null;
       });
