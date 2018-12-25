@@ -26,10 +26,7 @@ self.addEventListener("activate", event => {
       )
   );
 });
-/**
- *
- * @param {Request} _req
- */
+
 function IsApiOrNone(_req) {
   const req = _req.clone();
   const url = new URL(req.url);
