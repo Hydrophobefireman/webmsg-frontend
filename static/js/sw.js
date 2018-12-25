@@ -40,7 +40,7 @@ self.addEventListener("fetch", event => {
     return;
   }
   if (reqURL.pathname === "/api/gen_204/" && !self.navigator.onLine) {
-    return event.respondWith(new Response("", { status: 200 }));
+    event.respondWith(new Response("", { status: 200 }));
   }
 
   const resource = global.caches.match(request).then(response => {
@@ -67,7 +67,7 @@ self.addEventListener("fetch", event => {
         // User is landing on our page.
         if (event.request.mode === "navigate") {
           console.log("navigation");
-          return event.respondWith(global.caches.match("./"));
+          event.respondWith(global.caches.match("./"));
         }
         return null;
       });
