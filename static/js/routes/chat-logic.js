@@ -76,10 +76,12 @@ export class BaseManager {
     };
   }
   _onDataChannel() {
-    console.log(`[isOfferer=${this._isOfferer}]started data channel`, this._dc);
-    this._dc.addEventListener(
-      "message",
-      ({ data }) => (Events.emit("chat_message", data), console.log(data))
+    console.log(
+      `[isOfferer:${this._isOfferer}] started data channel`,
+      this._dc
+    );
+    this._dc.addEventListener("message", ({ data }) =>
+      Events.emit("chat_message", data)
     );
     this.__USEWEBSOCKETFALLBACK__ = false;
   }
@@ -134,7 +136,6 @@ export class BaseManager {
 
   _onWSmessage({ data: _rawData = {} }) {
     if (typeof _rawData !== "string") {
-      return console.log("handle binary");
     }
     const $data = JSON.parse(_rawData);
     const { type, data, meta } = $data;
@@ -145,12 +146,10 @@ export class BaseManager {
           if (data.sender === this._user) {
             return;
           }
-          console.log(data);
           return showNotification(data);
         }
         return;
       }
-      console.log(`new chat offer from ${meta.from}`);
       const notify = new MatNotify(
         "Start a Chat",
         `${meta.from} is ready to chat!`,
@@ -364,7 +363,6 @@ export class MessageManager extends BaseManager {
         stamp: _getTime()
       }
     };
-    console.log("sending to server--->", details);
     const resp = await Requests.post(
       "/api/instant-message/",
       true,
@@ -431,8 +429,8 @@ export class MessageManager extends BaseManager {
   }
   async _getUpdatesFromServer() {
     const $data = (await IDB.get(this._chat_id)) || {};
+    console.log("IDB Data Recieved");
     const data = $data.chats || {};
-    console.log("idb data-->", data);
     this._renderFetchedMessages(data);
     this._lastMessageID = Object.keys(data).length - 1;
     this._latestMessageElement

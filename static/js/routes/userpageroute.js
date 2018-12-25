@@ -93,8 +93,9 @@ function prevChatsFetch(e) {
   const msg = getElement(this, "prevChatsMessage");
   this.attrs._checked = e.checked;
   async function fetches() {
-    if (prevChats) {
-      el.children = prevChats;
+    const prevs = localStorage.getItem("previous_chats");
+    if (prevs) {
+      el.children = prevs;
       el.add();
     } else {
       this.remove();
@@ -129,7 +130,6 @@ function prevChatsFetch(e) {
       for (const dat of users) {
         components.push(respButton(dat.user, dat.chat_id));
       }
-      prevChats = components;
       el.children = components;
       el.safeRerender(el);
       spinner.remove();
@@ -147,7 +147,6 @@ function prevChatsFetch(e) {
     el.remove();
   }
 }
-let prevChats;
 
 const resultsBox = {
   element: "div",
