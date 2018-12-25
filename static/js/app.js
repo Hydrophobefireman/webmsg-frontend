@@ -4,11 +4,11 @@ import { getConnection, ProdMode, Requests } from "./ext.js";
 import "../css/main.css";
 import "../css/chat.css";
 import "../../assets/manifest.json";
-import _ from "./matspinner.js";
+import _ from "./custom-elements/matspinner.js";
 import chatRoute from "./routes/chatroute.js";
 import userPageRoute from "./routes/userpageroute.js";
 import loginRoute from "./routes/loginroute.js";
-// import babel from "@babel/runtime";
+import runtime from "serviceworker-webpack-plugin/lib/runtime";
 applyExternalCss("https://fonts.googleapis.com/css?family=Open+Sans");
 window.router = Router;
 const router = Router;
@@ -33,10 +33,8 @@ router.registerRoute(logoutRoute);
   }
 })();
 getConnection(router, false).then(() => router.startLoad());
-const isSWReady = false;
-if ("serviceWorker" in navigator && isSWReady && ProdMode()) {
-  navigator.serviceWorker.register("/sw.js").then(reg => {
-    reg.update();
-    console.log(`SW registered. ${reg.scope}`);
-  });
+const isSWReady = true;
+if ("serviceWorker" in navigator && isSWReady && !ProdMode()) {
+  const reg = runtime.register();
+  reg.then(e => console.log("SW registered.", e.scope));
 }

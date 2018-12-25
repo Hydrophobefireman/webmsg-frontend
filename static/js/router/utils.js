@@ -28,7 +28,7 @@ export const Events = new class Events {
     this.EventCache = {};
   }
 }();
-export const parseHash = a => {
+export const parseHash = (a = window.location) => {
   let b, c;
   if ("#" === a[0]) b = a.substr(1);
   else
@@ -79,7 +79,7 @@ export const setattrs = (element, attributes, stylesheet = sheet) => {
           element.className = [...value].join(" ");
         }
       } else if (key === "events") {
-        for (const event of value) {
+        for (const event of Object.keys(value)) {
           const listener = value[event];
           element.addEventListener(event, listener);
         }
@@ -122,17 +122,21 @@ export const setattrs = (element, attributes, stylesheet = sheet) => {
   }
 };
 export const $ = {
-  q: (a, b = !0) => {
+  q(a, b = !0) {
     return b
       ? document.querySelector(a)
       : Array.from(document.querySelectorAll(a));
   },
   id: a => document.getElementById(a),
-  className: (a, b = !0) => {
+  className(a, b = !0) {
     const c = Array.from(document.getElementsByClassName(a));
     return b ? c[0] : c;
   },
-  create: (a, b, c = sheet) => {
+  /**
+   *
+   * @returns {HTMLElement}
+   */
+  create(a, b, c = sheet) {
     const d = document.createElement(a);
     return b && "object" == typeof b && setattrs(d, b, c), d;
   },

@@ -1,5 +1,5 @@
-import { safeDefine, stampFormat } from "./router/utils.js";
-import imgSrc from "../../assets/attachment.svg";
+import { safeDefine, stampFormat } from "../router/utils.js";
+import imgSrc from "../../../assets/attachment.svg";
 export class MessageElement extends HTMLElement {
   constructor(
     { message, sender, receiver, stamp, read, rstamp, seen_read, edited },

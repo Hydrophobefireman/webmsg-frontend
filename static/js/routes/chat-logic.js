@@ -9,16 +9,16 @@ import {
   Events,
   isKeyValObj
 } from "../router/utils";
-import { MatNotify } from "../matnotify.js";
+import { MatNotify } from "../custom-elements/matnotify.js";
 import { IDB } from "../idb.js";
-import { MessageElement } from "../message-element.js";
+import { MessageElement } from "../custom-elements/message-element.js";
+import { showNotification } from "../show-notification.js";
 export const peerConnectionConfig = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" }
   ]
 };
-
 const generateInlineNotification = message => {
   const div = $.create("div", { notification: true, textContent: message });
   div.onclick = () => div.remove();
@@ -136,6 +136,11 @@ export class BaseManager {
     const { type, data, meta } = $data;
     if (meta.from !== this._peer && meta.from !== this._user) {
       if (type !== "start_chat" && type !== "online_status") {
+        if (type === "message-relay") {
+          data.sender = meta.from;
+          console.log(data);
+          return showNotification(data);
+        }
         return;
       }
       console.log(`new chat offer from ${meta.from}`);
@@ -143,20 +148,8 @@ export class BaseManager {
         "Start a Chat",
         `${meta.from} is ready to chat!`,
         () => load(`/chat/${data.common_chat_id}`),
-        "Click to send a message",
-        { showInput: 1 },
-        true,
-        e => {
-          const val = e.target.value;
-          if (val && val.trim()) {
-            this._socket.send({
-              type: "message-relay",
-              data: this._GenerateMessageTemplate
-                ? this._GenerateMessageTemplate(val)
-                : void 0
-            });
-          }
-        }
+        "Chat",
+        console.log
       );
       document.body.appendChild(notify);
       return notify.startTick();
@@ -292,6 +285,7 @@ export class MessageManager extends BaseManager {
       return console.warn(e);
     }
     const { type, sender, data } = _data;
+    console.log(_data);
     if (type === "message-relay") {
       this._lastMessageID += 1;
       const obj = {};

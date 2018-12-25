@@ -1,4 +1,4 @@
-import { safeDefine, $ } from "./router/utils.js";
+import { safeDefine, $ } from "../router/utils.js";
 
 export class MatNotify extends HTMLElement {
   createTemplate() {
@@ -25,7 +25,7 @@ export class MatNotify extends HTMLElement {
     return tmpl;
   }
   startTick(timer = 4000) {
-    setTimeout(() => this.remove(), timer);
+    this.$$timer = setTimeout(() => this.remove(), timer);
   }
   constructor(
     title,
@@ -46,7 +46,9 @@ export class MatNotify extends HTMLElement {
     const e = this.createTemplate(),
       f = this.attachShadow({ mode: "open" });
     f.appendChild(e.content.cloneNode(!0));
-    f.querySelector(".bxcs").onclick = bodyOnClick;
+    f.querySelector(".body").onclick = () => {
+      bodyOnClick();
+    };
     if (this.action1onClick.showInput) {
       let inp;
       const action = f.querySelector(".action");
@@ -61,12 +63,11 @@ export class MatNotify extends HTMLElement {
       action.onclick = () => {
         action.replaceWith(inp);
         inp.focus();
-        this.remove();
+        clearTimeout(this.$$timer);
+        // this.remove();
       };
     } else {
-      f.querySelector(".action").onclick = arg => (
-        action1onClick(arg), this.remove()
-      );
+      f.querySelector(".action").onclick = arg => action1onClick(arg);
     }
   }
 }

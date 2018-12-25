@@ -1,4 +1,4 @@
-import { safeDefine } from "./router/utils.js";
+import { safeDefine } from "../router/utils.js";
 
 export class MatCheckBox extends HTMLElement {
   set checked(val) {

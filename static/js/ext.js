@@ -1,5 +1,5 @@
 import { $, urlencode, makeCSS, getElement, load } from "./router/utils.js";
-import MatSpinner from "./matspinner.js";
+import MatSpinner from "./custom-elements/matspinner.js";
 export const ProdMode = () => location.hostname !== "localhost";
 export const _URLHOST = window.location.host.includes("localhost")
   ? "localhost:5000"
@@ -322,7 +322,7 @@ class UtilsService {
       return true;
     }
     try {
-      const resp = await Requests.get("/api/getuser");
+      const resp = await Requests.post("/api/getuser");
       if (resp.ok && !resp.error) {
         const user = await resp.text();
         this.HERE = user.substr(3);
@@ -378,44 +378,6 @@ export const noAuth = async (data, navdata = {}) => {
     return false;
   }
 };
-const tmplate = (() => {
-  const a = document.createElement("template"),
-    b = makeCSS({
-      margin: "5px",
-      width: "fit-content",
-      "border-radius": "15px",
-      "max-width": "45%",
-      display: "flex",
-      padding: "6px",
-      "margin-top": "5px",
-      color: "#fff",
-      cursor: "pointer",
-      "text-align": "left",
-      "overflow-wrap": "break-word",
-      "word-break": "break-word"
-    });
-  return (a.innerHTML = `<style>:host{${b}}</style><slot></slot>`), a;
-})();
-//  class MessageElement extends HTMLElement {
-//   set _id(a) {
-//     (this._id_ = a), this.setAttribute("data-msgid", a);
-//   }
-//   get _id() {
-//     return this._id_;
-//   }
-//   constructor(a, b) {
-//     super();
-//     const c = this.attachShadow({
-//       mode: "open"
-//     });
-//     c.appendChild((a || tmplate).content.cloneNode(!0)),
-//       (this.meta = null),
-//       (this.data = null),
-//       (this._id_ = 0),
-//       b && (this.meta = b),
-//       (this._messagedata = null);
-//   }
-// }
 export const blobToArrayBuffer = a =>
   new Promise((b, c) => {
     const d = new FileReader();

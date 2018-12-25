@@ -1,15 +1,31 @@
-import {
-  matInput,
-  noAuth,
-  getSocket,
-  Requests,
-  utilService,
-  retry
-} from "../ext.js";
+import { matInput, noAuth, Requests, utilService, retry } from "../ext.js";
+import { notificationInit } from "../notifications.js";
 import { load, getElement, urlencode, makeCSS, $ } from "../router/utils.js";
-import { MatCheckBox as _ } from "../checkbox.js";
+import { MatCheckBox as _ } from "../custom-elements/checkbox.js";
 const SetNotificationService = () => {
-  console.log("TODO");
+  if (typeof Notification === "function") {
+    if (Notification.permission !== "granted") {
+      const div = $.create("div", {
+        notification: true,
+        textContent:
+          "Click to enable notification service. Long press or right click to remove this dialog",
+        _routerif: "this.routeParser(location).includes('/u/')",
+        events: {
+          contextmenu({ target }) {
+            target.remove();
+          }
+        }
+      });
+      document.body.appendChild(div);
+      div.style.transform = "translate(0px,0px)";
+      return (div.onclick = () => {
+        div.remove();
+        notificationInit();
+      });
+    } else {
+      notificationInit();
+    }
+  }
 };
 const respButton = (textContent, href) => ({
   element: "button",

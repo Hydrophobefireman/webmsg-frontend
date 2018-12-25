@@ -2,7 +2,8 @@ const minifier = require("terser-webpack-plugin"),
   HtmlWebpackPlugin = require("html-webpack-plugin"),
   webpackPwaManifest = require("webpack-pwa-manifest"),
   MiniCssExtractPlugin = require("mini-css-extract-plugin"),
-  StyleExtHtmlWebpackPlugin = require("style-ext-html-webpack-plugin");
+  StyleExtHtmlWebpackPlugin = require("style-ext-html-webpack-plugin"),
+  serviceWorkerPlugin = require("serviceworker-webpack-plugin");
 const mode = "development";
 // const mode = "production";
 const devOrProd = (a, b) => {
@@ -92,6 +93,7 @@ module.exports = {
       filename: "[name]-[hash].css",
       chunkFilename: "[id]-[hash].css"
     }),
-    new StyleExtHtmlWebpackPlugin({ minify: devOrProd(!0, !1) })
+    new StyleExtHtmlWebpackPlugin({ minify: devOrProd(!0, !1) }),
+    new serviceWorkerPlugin({ entry: `${__dirname}/static/js/sw.js` })
   ]
 };

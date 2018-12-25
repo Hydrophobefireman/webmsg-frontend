@@ -1,4 +1,4 @@
-import { $, safeDefine } from "./router/utils.js";
+import { $, safeDefine } from "../router/utils.js";
 export default class MatSpinner extends HTMLElement {
   set size(val) {
     const spinner = this.svg();

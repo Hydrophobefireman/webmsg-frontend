@@ -2,6 +2,7 @@ const minifier = require("terser-webpack-plugin"),
   HtmlWebpackPlugin = require("html-webpack-plugin"),
   webpackPwaManifest = require("webpack-pwa-manifest"),
   MiniCssExtractPlugin = require("mini-css-extract-plugin"),
+  serviceWorkerPlugin = require("serviceworker-webpack-plugin"),
   StyleExtHtmlWebpackPlugin = require("style-ext-html-webpack-plugin");
 const mode = "production";
 module.exports = {
@@ -68,12 +69,14 @@ module.exports = {
       name: "WebMsg",
       start_url: "/",
       short_name: "WebMsg",
-      "theme-color": "#1976d2"
+      "theme-color": "#1976d2",
+      theme_color: "#1976d2"
     }),
     new MiniCssExtractPlugin({
       filename: "[name]-[hash].css",
       chunkFilename: "[id]-[hash].css"
     }),
-    new StyleExtHtmlWebpackPlugin({ minify: true })
+    new StyleExtHtmlWebpackPlugin({ minify: true }),
+    new serviceWorkerPlugin({ entry: `${__dirname}/static/js/sw.js` })
   ]
 };
