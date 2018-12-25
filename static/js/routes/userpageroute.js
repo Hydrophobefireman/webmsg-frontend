@@ -101,20 +101,23 @@ function prevChatsFetch(e) {
       msg.remove();
       const spinner = getElement(this, "loading-spinner");
       spinner.add();
-      const resp = await Requests.post(
-        "/api/chat_ids/",
-        true,
-        urlencode({ user: await utilService.getUser(false, true) })
-      );
-      const data = await resp.json();
-      if (data.previous_chats) {
-        localStorage.setItem(
-          "previous_chats",
-          JSON.stringify(data.previous_chats)
+      let resp, data;
+      if (navigator.onLine) {
+        resp = await Requests.post(
+          "/api/chat_ids/",
+          true,
+          urlencode({ user: await utilService.getUser(false, true) })
         );
+        data = await resp.json();
+        if (data.previous_chats) {
+          localStorage.setItem(
+            "previous_chats",
+            JSON.stringify(data.previous_chats)
+          );
+        }
       }
       const users =
-        data.previous_chats ||
+        (data || {}).previous_chats ||
         JSON.parse(localStorage.getItem("previous_chats") || "[]");
       if (!users.length) {
         spinner.remove();
