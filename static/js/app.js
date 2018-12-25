@@ -9,6 +9,7 @@ import chatRoute from "./routes/chatroute.js";
 import userPageRoute from "./routes/userpageroute.js";
 import loginRoute from "./routes/loginroute.js";
 import runtime from "serviceworker-webpack-plugin/lib/runtime";
+import { IDB } from "./idb.js";
 applyExternalCss("https://fonts.googleapis.com/css?family=Open+Sans");
 window.router = Router;
 const router = Router;
@@ -19,10 +20,14 @@ if (banner) {
 const logoutRoute = {
   route: "/logout/",
   element: "div",
-  beforeRender() {
+  async beforeRender() {
     return router.isUserGoingBack("/")
       ? { stopExec: !0 }
-      : Requests.post("/api/logout/", !0, "").then(() => Router.load("/"));
+      : (localStorage.clear(),
+        await IDB.__clear__(),
+        Requests.post("/api/logout/", !0, "").then(() => {
+          Router.load("/");
+        }));
   },
   textContent: "Logging you out"
 };
