@@ -9,6 +9,7 @@ self.addEventListener("install", event => {
       .then(cache => cache.addAll(assetsToCache))
       .catch(console.error)
   );
+  event;
 });
 
 self.addEventListener("activate", event => {
@@ -26,15 +27,14 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
-  if (event.request.mode === "navigate") {
-    return event.respondWith(caches.match("./"));
-  }
   event.respondWith(
     caches
       .match(event.request)
       .then(response => response || fetch(event.request))
       .catch(() => {
-        console.log("Err");
+        if (event.request.mode === "navigate") {
+          return event.respondWith(caches.match("./"));
+        }
       })
   );
 });
