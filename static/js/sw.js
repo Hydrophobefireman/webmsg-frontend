@@ -34,7 +34,6 @@ function IsApiOrNone(_req) {
   const req = _req.clone();
   const url = new URL(req.url);
   if (!navigator.onLine) {
-    console.log(url);
     if (url.pathname === "/api/gen_204") {
       return new Response("sw cached", {
         headers: { "content-type": "text/plain" }

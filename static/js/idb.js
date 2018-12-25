@@ -1,4 +1,4 @@
-const idbinit = () => {
+const idbinit = $$storeName => {
   const noop = async () => null;
   let get = noop,
     set = noop,
@@ -8,7 +8,7 @@ const idbinit = () => {
   if (!indexedDB) {
   } else {
     class WebStore {
-      constructor(DataBase = "WebCache", storeName = "KeyStore") {
+      constructor(DataBase = "WebCache", storeName = $$storeName) {
         this.storeName = storeName;
         this._dbase = new Promise((resolve, reject) => {
           const request = indexedDB.open(DataBase, 1);
@@ -102,4 +102,4 @@ const idbinit = () => {
   }
   return { get, set, __clear__, keys, del };
 };
-export const IDB = idbinit();
+export const IDB = idbinit("KeyStore");

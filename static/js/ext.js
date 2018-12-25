@@ -316,7 +316,7 @@ class UtilsService {
   }
   async getUser(forceRecheck = false, getName = false) {
     if (!navigator.onLine && this.HERE) {
-      return this.HERE;
+      return localStorage.getItem("$$user");
     }
     if (this.HERE && !forceRecheck) {
       if (getName) {
@@ -329,6 +329,7 @@ class UtilsService {
       if (resp.ok && !resp.error) {
         const user = await resp.text();
         this.HERE = user.substr(3);
+        localStorage.setItem("$$user", this.HERE);
         if (getName) {
           return this.HERE;
         }
