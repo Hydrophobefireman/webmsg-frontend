@@ -32,6 +32,9 @@ export class BaseManager {
         urlencode({ chat_id: id })
       ),
       resp = await req.json();
+    if (resp.$$serviceWorker$$) {
+      return resp;
+    }
     if (resp.error) return { error: resp.error };
     const { HERE: d, chat_with: e, chat_id: f, is_online } = resp;
     return { user: d, chat_id: f, peer: e, is_online };

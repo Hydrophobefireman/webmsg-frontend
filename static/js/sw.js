@@ -26,11 +26,31 @@ self.addEventListener("activate", event => {
       )
   );
 });
+/**
+ *
+ * @param {Request} req
+ */
+function IsApiOrNone(req) {
+  const url = new URL(req.url);
+  if (!navigator.onLine) {
+    if (url.pathname === "/api/gen_204/") {
+      return new Response("");
+    } else if (url.pathname.includes("/api/chat-stats/")) {
+      return new Response(JSON.stringify({ $$serviceWorker$$: true }), {
+        headers: {
+          "content-type": "application/json",
+          "x-service-worker": true
+        }
+      });
+    }
+    return fetch(req);
+  }
+}
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches
       .match(event.request)
-      .then(response => response || fetch(event.request))
+      .then(response => response || IsApiOrNone(event.request))
       .catch(() => {
         if (event.request.mode === "navigate") {
           return event.respondWith(caches.match("./"));
