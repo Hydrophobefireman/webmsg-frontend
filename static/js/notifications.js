@@ -40,13 +40,6 @@ export async function notificationInit() {
       messaging.onTokenRefresh(token_stuff);
     } catch (e) {
       console.warn(e);
-      const div = $.create("div", {
-        notification: true,
-        textContent: "Permission Denied"
-      });
-      document.body.appendChild(div);
-      div.style.transform = "translate(0px,0px)";
-      setTimeout(() => div.remove(), 1500);
       console.log("Permission-Denied");
     }
     if (Notification.permission === "granted") {
