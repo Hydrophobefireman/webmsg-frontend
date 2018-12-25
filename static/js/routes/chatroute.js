@@ -146,6 +146,9 @@ export default {
       manager = new MessageManager(meta, mainContent);
     }
     const data = await getChatData(chatID);
+    if (data.$$serviceWorker$$) {
+      return;
+    }
     if (manager) {
       const prev = manager._is_online;
       manager._is_online = data.is_online;

@@ -4,7 +4,7 @@ import { load, getElement, urlencode, makeCSS, $ } from "../router/utils.js";
 import { MatCheckBox as _ } from "../custom-elements/checkbox.js";
 const SetNotificationService = () => {
   if (typeof Notification === "function") {
-    if (Notification.permission !== "granted") {
+    if (Notification.permission === "default") {
       const div = $.create("div", {
         notification: true,
         textContent:
@@ -107,12 +107,20 @@ function prevChatsFetch(e) {
         urlencode({ user: await utilService.getUser(false, true) })
       );
       const data = await resp.json();
-      const users = data.previous_chats || [];
+      if (data.previous_chats) {
+        localStorage.setItem(
+          "previous_chats",
+          JSON.stringify(data.previous_chats)
+        );
+      }
+      const users =
+        data.previous_chats ||
+        JSON.parse(localStorage.getItem("previous_chats") || "[]");
       if (!users.length) {
         spinner.remove();
         msg.$$element.textContent =
           "An error occured while searching for your chats";
-        throw new Error("$bad length");
+        return;
       }
       const components = [];
       for (const dat of users) {
