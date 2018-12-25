@@ -57,9 +57,13 @@ self.addEventListener("fetch", event => {
     caches
       .match(event.request)
       .then(response => response || IsApiOrNone(event.request))
-      .catch(() => {
+      .catch(e => {
+        console.log(e, "<--error");
         if (event.request.mode === "navigate") {
-          return caches.match("./");
+          const req = event.request.clone();
+          if (new URL(req).pathname === "/") {
+            return caches.match("./");
+          }
         }
       })
   );
