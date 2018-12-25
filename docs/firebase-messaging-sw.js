@@ -46,7 +46,7 @@ messaging.setBackgroundMessageHandler(payload => {
     data: { chat_id: data.chat_id }
   };
   let title;
-  if (!data.message && data.media) {
+  if (data.media) {
     notificationOpts["body"] = `Message from ${data.sender}`;
     notificationOpts["image"] = data.mediaURL;
     title = "New Message";
