@@ -28,11 +28,13 @@ self.addEventListener("activate", event => {
 });
 /**
  *
- * @param {Request} req
+ * @param {Request} _req
  */
-function IsApiOrNone(req) {
+function IsApiOrNone(_req) {
+  const req = _req.clone();
   const url = new URL(req.url);
   if (!navigator.onLine) {
+    console.log(url);
     if (url.pathname === "/api/gen_204/") {
       return new Response("sw cached", {
         headers: { "content-type": "text/plain" }
@@ -45,9 +47,9 @@ function IsApiOrNone(req) {
         }
       });
     }
-    return fetch(req);
+    return fetch(_req);
   } else {
-    return fetch(req);
+    return fetch(_req);
   }
 }
 self.addEventListener("fetch", event => {
@@ -62,45 +64,3 @@ self.addEventListener("fetch", event => {
       })
   );
 });
-//   const request = event.request;
-//   // Ignore not GET request.
-//   if (request.method !== "GET") {
-//     console.log(`[SW] Ignore non GET request-> ${request.method}`);
-//     return;
-//   }
-//   const reqURL = new URL(request.url);
-//   if (reqURL.hostname !== self.location.hostname) {
-//     return;
-//   }
-//   if (reqURL.pathname === "/api/gen_204/" && !self.navigator.onLine) {
-//     event.respondWith(new Response("", { status: 200 }));
-//   }
-//   const resource = global.caches.match(request).then(response => {
-//     if (response) {
-//       console.log(`[SW] fetch URL ${reqURL.href} from cache`);
-//       return response;
-//     }
-//     // Load and cache known assets.
-//     return fetch(request)
-//       .then(resp => {
-//         if (!resp || !resp.ok) {
-//           console.log(
-//             `[SW] URL [${reqURL.href}] wrong responseNetwork: ${resp.status} ${
-//               resp.type
-//             }`
-//           );
-//           return resp;
-//         }
-//         console.log(`[SW] Fetched: ${reqURL.href}`);
-//         return resp;
-//       })
-//       .catch(() => {
-//         // User is landing on our page.
-//         if (event.request.mode === "navigate") {
-//           console.log("navigation");
-//           event.respondWith(global.caches.match("./"));
-//         }
-//         return null;
-//       });
-//   });
-//   event.respondWith(resource);
