@@ -2,7 +2,6 @@ const { assets } = serviceWorkerOption;
 const CACHE_NAME = `CACHE-V${new Date().getTime()}`;
 const assetsToCache = [...assets, "./"];
 self.addEventListener("install", event => {
-  self.skipWaiting();
   console.log("[SW] Installed");
   event.waitUntil(
     caches

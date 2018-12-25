@@ -101,9 +101,9 @@ function prevChatsFetch(e) {
       msg.remove();
       const spinner = getElement(this, "loading-spinner");
       spinner.add();
-      let resp, data;
+      let data;
       if (navigator.onLine) {
-        resp = await Requests.post(
+        const resp = await Requests.post(
           "/api/chat_ids/",
           true,
           urlencode({ user: await utilService.getUser(false, true) })
