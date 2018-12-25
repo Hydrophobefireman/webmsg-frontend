@@ -315,7 +315,7 @@ class UtilsService {
     return resp;
   }
   async getUser(forceRecheck = false, getName = false) {
-    if (!navigator.onLine && this.HERE) {
+    if (!navigator.onLine) {
       return localStorage.getItem("$$user");
     }
     if (this.HERE && !forceRecheck) {
