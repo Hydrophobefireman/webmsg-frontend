@@ -95,7 +95,7 @@ function prevChatsFetch(e) {
   async function fetches() {
     const prevs = localStorage.getItem("previous_chats");
     if (prevs) {
-      el.children = prevs;
+      el.children = JSON.parse(prevs);
       el.add();
     } else {
       this.remove();
