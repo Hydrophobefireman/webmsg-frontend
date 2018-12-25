@@ -1,5 +1,5 @@
 const { assets } = serviceWorkerOption;
-const CACHE_NAME = `CACHE-V${new Date()}`;
+const CACHE_NAME = `CACHE-V${new Date().getTime()}`;
 const assetsToCache = [...assets, "./"];
 self.addEventListener("install", event => {
   console.log("[SW] Installed");
