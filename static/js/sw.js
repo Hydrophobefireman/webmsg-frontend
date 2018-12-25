@@ -33,8 +33,22 @@ self.addEventListener("activate", event => {
 function IsApiOrNone(_req) {
   const req = _req.clone();
   const url = new URL(req.url);
+  if (navigator.onLine) {
+    if (url.pathname === "/api/getuser") {
+      return fetch(_req).then(resp => {
+        const rsp = resp.clone();
+        rsp.text().then(data => self.localStorage.setItem("$$user", data));
+        return resp;
+      });
+    }
+  }
   if (!navigator.onLine) {
-    console.log(url);
+    console.log(url.href);
+    if (url.pathname === "/api/getuser") {
+      return new Response(localStorage.getItem("$$user"), {
+        headers: { "content-type": "text/plain" }
+      });
+    }
     if (url.pathname === "/api/gen_204") {
       return new Response("sw cached", {
         headers: { "content-type": "text/plain" }

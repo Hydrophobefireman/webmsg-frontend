@@ -20,12 +20,12 @@ if (banner) {
 const logoutRoute = {
   route: "/logout/",
   element: "div",
-  async beforeRender() {
+  beforeRender() {
     return router.isUserGoingBack("/")
       ? { stopExec: !0 }
       : (localStorage.clear(),
-        await IDB.__clear__(),
-        Requests.post("/api/logout/", !0, "").then(() => {
+        IDB.__clear__(),
+        Requests.post("/api/logout/").then(() => {
           Router.load("/");
         }));
   },
