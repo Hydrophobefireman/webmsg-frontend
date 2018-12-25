@@ -141,6 +141,9 @@ export class BaseManager {
       if (type !== "start_chat" && type !== "online_status") {
         if (type === "message-relay") {
           data.sender = meta.from;
+          if (data.sender === this._user) {
+            return;
+          }
           console.log(data);
           return showNotification(data);
         }
