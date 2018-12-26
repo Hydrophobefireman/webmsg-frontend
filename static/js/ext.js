@@ -123,23 +123,23 @@ export class Requests {
     });
   }
 }
-function onblur(c, d) {
-  if (!c.attrs.value || !c.attrs.value.trim()) {
-    const f = getElement(c, d);
-    f.attrs.class.delete("moveup");
-    f.attrs.class.add("movedown");
-    f.update();
-    setTimeout(() => (f.attrs.class.delete("movedown"), f.update()), 110);
-  }
-}
-function onfocus(c, d) {
-  const f = getElement(c, d);
-  f.attrs.class.add("moveup");
-  f.attrs.class.delete("movedown");
-  f.update();
-}
 export const matInput = (() => {
-  const a = (b, listeners, d, placeHolderId) => {
+  function onblur(c, d) {
+    if (!c.attrs.value || !c.attrs.value.trim()) {
+      const f = getElement(c, d);
+      f.attrs.class.delete("moveup");
+      f.attrs.class.add("movedown");
+      f.update();
+      setTimeout(() => (f.attrs.class.delete("movedown"), f.update()), 110);
+    }
+  }
+  function onfocus(c, d) {
+    const f = getElement(c, d);
+    f.attrs.class.add("moveup");
+    f.attrs.class.delete("movedown");
+    f.update();
+  }
+  const a = (b, listeners = {}, d, placeHolderId) => {
     const defaultListeners = {};
     if (!listeners.blur) {
       defaultListeners.blur = function() {
