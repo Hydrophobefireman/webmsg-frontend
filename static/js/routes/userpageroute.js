@@ -92,15 +92,18 @@ function prevChatsFetch(e) {
   const el = getElement(this, "prevChatsData");
   const msg = getElement(this, "prevChatsMessage");
   this.attrs._checked = e.checked;
+  const spinner = getElement(this, "loading-spinner");
   async function fetches() {
     const prevs = localStorage.getItem("previous_chats");
     if (prevs) {
       el.children = JSON.parse(prevs);
-      el.add();
+      el.safeRerender();
+      spinner.remove();
+      this.add();
     } else {
       this.remove();
       msg.remove();
-      const spinner = getElement(this, "loading-spinner");
+
       spinner.add();
       let data;
       if (navigator.onLine) {
