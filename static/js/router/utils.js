@@ -190,21 +190,27 @@ function isSameDay(c, d) {
     c.getDate() === d.getDate()
   );
 }
-export const stampFormat = c => {
+export const stampFormat = timeStamp => {
   try {
-    const d = { hour: "numeric", hour12: !0, minute: "numeric" },
-      e = new Date(c),
-      f = new Date();
-    if (
-      (e.getFullYear() !== f.getFullYear() && (d.year = "numeric"),
-      isSameDay(e, f) || (d.month = d.day = "numeric"),
-      e.getMonth())
-    )
-      return Intl.DateTimeFormat("auto", d).format(e);
-  } catch (d) {
-    return console.log(d), new Date(c).toLocaleString();
+    const options = {
+      hour: "numeric",
+      hour12: true,
+      minute: "numeric"
+    };
+    const now = new Date(timeStamp);
+    const date = new Date();
+    if (now.getFullYear() !== date.getFullYear()) {
+      options.year = "numeric";
+    }
+    if (!isSameDay(now, date)) {
+      options.month = options.day = "numeric";
+    }
+    return Intl.DateTimeFormat("auto", options).format(now);
+  } catch (e) {
+    return console.log(e), now.toLocaleString();
   }
 };
+
 export const _getTime = () => new Date().getTime();
 export const aptSize = a => {
   const b = 0 | (a / 1048576);
