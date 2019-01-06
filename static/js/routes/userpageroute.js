@@ -61,9 +61,8 @@ const searchInput = matInput("searchHint", "Search for users", "userSearch", {
       if (data) {
         const spinner = getElement(this, "search-spinner");
         spinner.add();
-        const rtoken = await Requests.get(
-          `/api/user-search/tokens/${await utilService.getIntegrity()}`
-        );
+        const integ = await utilService.getIntegrity();
+        const rtoken = await Requests.get(`/api/user-search/tokens/${integ}`);
         const token = await rtoken.text();
         const search = await Requests.post(
           "/api/users/",
