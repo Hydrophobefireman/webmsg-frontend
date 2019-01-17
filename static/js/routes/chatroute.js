@@ -46,7 +46,7 @@ const typingBox = {
     {
       idx: "sendbtn",
       element: "button",
-      textContent: "send",
+      textContent: "Send",
       attrs: { class: "send-btn" },
       onrender() {
         this.remove();
