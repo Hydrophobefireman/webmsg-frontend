@@ -102,7 +102,6 @@ function prevChatsFetch(e) {
     } else {
       this.remove();
       msg.remove();
-
       spinner.add();
       let data;
       if (navigator.onLine) {
@@ -120,8 +119,7 @@ function prevChatsFetch(e) {
         }
       }
       const users =
-        (data || {}).previous_chats ||
-        JSON.parse(localStorage.getItem("previous_chats") || "[]");
+        (data || {}).previous_chats || [];
       if (!users.length) {
         spinner.remove();
         msg.$$element.textContent =
