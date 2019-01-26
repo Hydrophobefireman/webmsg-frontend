@@ -1,7 +1,7 @@
 var serviceWorkerOption = {
   "assets": [
-    "/main-b5eaf3dbc49d6c38de1f.js",
-    "/vendors~main-b5eaf3dbc49d6c38de1f.js",
+    "/main-4fd395a89081aa6bc68f.js",
+    "/vendors~main-4fd395a89081aa6bc68f.js",
     "/favicon.ico",
     "/index.html",
     "/manifest.6b4773c0fa7d45bcab6ce04539f39fa5.json",
