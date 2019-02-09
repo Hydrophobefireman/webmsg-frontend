@@ -4,6 +4,7 @@ const minifier = require("terser-webpack-plugin"),
   MiniCssExtractPlugin = require("mini-css-extract-plugin"),
   serviceWorkerPlugin = require("serviceworker-webpack-plugin"),
   StyleExtHtmlWebpackPlugin = require("style-ext-html-webpack-plugin");
+const autoPrefixPlugin = require("autoprefixer");
 const mode = "production";
 module.exports = {
   devServer: { contentBase: `${__dirname}/docs`, compress: !0, port: 4200 },
@@ -23,13 +24,25 @@ module.exports = {
                 }
               ]
             ],
-            plugins: ["@babel/plugin-transform-runtime"]
+            plugins: [
+              "@babel/plugin-transform-runtime",
+              "@babel/plugin-syntax-dynamic-import"
+            ]
           }
         }
       },
       {
         test: /\.css$/,
-        use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader"]
+        use: [
+          { loader: MiniCssExtractPlugin.loader },
+          {
+            loader: "css-loader"
+          },
+          {
+            loader: "postcss-loader",
+            options: { ident: "postcss", plugins: [autoPrefixPlugin()] }
+          }
+        ]
       },
       {
         test: /\.(png|jpg|gif|ico|svg)$/,
@@ -38,7 +51,7 @@ module.exports = {
     ]
   },
   entry: `${__dirname}/static/js/app.js`,
-  output: { path: `${__dirname}/docs`, filename: "[name]-[hash].js" },
+  output: { path: `${__dirname}/docs`, filename: "[name]-[contenthash].js" },
   mode,
   optimization: {
     minimizer: [new minifier({ parallel: !0 })],

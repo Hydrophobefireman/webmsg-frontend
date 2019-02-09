@@ -295,7 +295,10 @@ const _makeRequest = async (st = true) => {
   setTimeout(() => (st ? router.startLoad() : void 0), 450);
 };
 export async function getConnection(router, st) {
-  return retry(() => _makeRequest(st), 2, e => _getConnOnError(e, router));
+  return retry(() => _makeRequest(st), 2, e => {
+    _getConnOnError(e, router);
+    throw new Error("e");
+  });
 }
 
 class UtilsService {
