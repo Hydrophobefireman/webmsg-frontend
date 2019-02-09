@@ -2,7 +2,6 @@ import { safeDefine, stampFormat } from "../router/utils.js";
 import imgSrc from "../../../assets/attachment.svg";
 const template = document.createElement("template");
 template.innerHTML = `<style>:host{display:flex;flex-direction:column}:host.received{text-align:left}:host.sent{text-align:right}[message]{-webkit-tap-highlight-color:transparent;text-align:left;margin:5px;margin-bottom:0px;width:fit-content;border-radius:15px;max-width:45%;display:inline-flex;padding:6px;cursor:pointer;overflow-wrap:break-word;word-break:break-word}[message].sent{background:#d2e3fc;color:#174ea6;margin-left:auto}[message].received{margin-right:auto;background-color:#f1f3f4;color:#000000de}[time]{display:flex;font-weight:200;color: #0000005e;font-size:12px;margin:10px;margin-top:2px;-webkit-transition:.2s;transition:.2s;-webkit-transform:translate(0,0);transform:translate(0,0)}[time].sent{flex-direction:row-reverse;}[time].received{flex-direction:row}</style><div message></div><div time></div>`;
-const templatClonedNode = template.content.cloneNode(!0);
 export class MessageElement extends HTMLElement {
   constructor(
     { message, sender, receiver, stamp, read, rstamp, seen_read, edited },
@@ -27,10 +26,9 @@ export class MessageElement extends HTMLElement {
     this.$id = id;
     this.user = user;
     const f = this.attachShadow({ mode: "open" });
-    f.appendChild(templatClonedNode);
+    f.appendChild(template.content.cloneNode(!0));
     this.msg = f.querySelector("div[message]");
     this.time = f.querySelector("div[time]");
-    // msg.addEventListener("click", () => console.log(this));
     this.setAttribute("msg-id", this.$id);
     if (this.sender === peer) {
       this.msg.classList.add("received");
