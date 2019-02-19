@@ -1,4 +1,10 @@
-import { $, safeDefine } from "../router/utils.js";
+import { safeDefine } from "../router/utils.js";
+function createTemplate() {
+  const templateText = `<style>svg{-webkit-animation:rotate360 linear 2s;animation:rotate360 linear 2s;-webkit-animation-iteration-count:infinite;animation-iteration-count:infinite;-webkit-transform-origin:50% 50%;-ms-transform-origin:50% 50%;transform-origin:50% 50%;display:inline-block;width:65px;height:65px}@-webkit-keyframes rotate360{0%{-webkit-transform:rotate(0);transform:rotate(0)}50%{-webkit-transform:rotate(90deg);transform:rotate(90deg)}75%{-webkit-transform:rotate(270deg);transform:rotate(270deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes rotate360{0%{-webkit-transform:rotate(0);transform:rotate(0)}50%{-webkit-transform:rotate(90deg);transform:rotate(90deg)}75%{-webkit-transform:rotate(270deg);transform:rotate(270deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}circle{stroke:#6f70ee;-webkit-animation:rotateSp linear 1.4s;animation:rotateSp linear 1.4s;-webkit-transform-origin:center;-ms-transform-origin:center;transform-origin:center;-webkit-animation-iteration-count:infinite;animation-iteration-count:infinite;stroke-dasharray:185}@-webkit-keyframes rotateSp{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-365}}@keyframes rotateSp{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-365}}</style><svg viewbox="0 0 66 66" xmlns="http://www.w3.org/2000/svg"><circle fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle></svg>`;
+  template.innerHTML = templateText;
+  return template;
+}
+const template = createTemplate();
 export default class MatSpinner extends HTMLElement {
   set size(val) {
     const spinner = this.svg();
@@ -31,36 +37,18 @@ export default class MatSpinner extends HTMLElement {
       ? (this.svgstyle = c)
       : "circlestyle" === a && (this.circlestyle = c);
   }
-  createTemplate() {
-    const a = `svg{display:inline-block;width: 65px;height: 65px;animation:rotator 1.4s linear infinite}@keyframes rotator{0%{transform:rotate(0)}100%{transform:rotate(270deg)}}circle{stroke:#6f70ee;stroke-dasharray:120;stroke-dashoffset:0;transform-origin:center;animation:dash 1.4s ease-in-out infinite}@keyframes dash{0%{stroke-dashoffset:120}50%{stroke-dasharray:200;stroke-dashoffset:190;transform:rotate(135deg)}100%{stroke-dashoffset:120;transform:rotate(450deg)}}`,
-      b = $.create("svg", {
-        viewbox: "0 0 66 66",
-        xmlns: "http://www.w3.org/2000/svg"
-      }),
-      c = $.create("circle", {
-        fill: "none",
-        "stroke-width": 6,
-        "stroke-linecap": "round",
-        cx: 33,
-        cy: 33,
-        r: 30
-      }),
-      d = document.createElement("template");
-    b.appendChild(c);
-    const e = document.createElement("style");
-    return (e.innerHTML = a), (d.innerHTML = e.outerHTML + b.outerHTML), d;
-  }
+
   constructor(size, color, svgstyle, circlestyle) {
     super();
-    const e = this.createTemplate(),
+    const e = template,
       f = this.attachShadow({ mode: "open" });
-    f.appendChild(e.content.cloneNode(!0)),
-      (this.svg = () => this.shadowRoot.querySelector("svg")),
-      (this.circle = () => this.shadowRoot.querySelector("circle")),
-      size && (this.size = size),
-      color && (this.color = color),
-      svgstyle && (this.svg().style = svgstyle),
-      circlestyle && (this.circle().style = circlestyle);
+    f.appendChild(e.content.cloneNode(!0));
+    this.svg = () => this.shadowRoot.querySelector("svg");
+    this.circle = () => this.shadowRoot.querySelector("circle");
+    size && (this.size = size);
+    color && (this.color = color);
+    svgstyle && (this.svg().style = svgstyle);
+    circlestyle && (this.circle().style = circlestyle);
   }
 }
 safeDefine("mat-spinner", MatSpinner);
