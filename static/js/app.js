@@ -1,6 +1,5 @@
 import { Router, applyExternalCss } from "./router/router.js";
 import { $ } from "./router/utils.js";
-import "@babel/polyfill";
 import { getConnection, ProdMode, Requests } from "./ext.js";
 import "../css/main.css";
 import "../css/chat.css";
@@ -32,9 +31,15 @@ const logoutRoute = {
 router.registerRoute(logoutRoute);
 getConnection(router, false)
   .then(async () => {
-    const chatRoute = import(/* webpackChunkName:"chat-route" */ "./routes/chatroute.js");
-    const userPageRoute = import(/*webpackChunkName:"user-page"*/ "./routes/userpageroute.js");
-    const loginRoute = import(/*webpackChunkName:"loginroute" */ "./routes/loginroute.js");
+    const chatRoute = import(
+      /* webpackChunkName:"chat-route" */ "./routes/chatroute.js"
+    );
+    const userPageRoute = import(
+      /*webpackChunkName:"user-page"*/ "./routes/userpageroute.js"
+    );
+    const loginRoute = import(
+      /*webpackChunkName:"loginroute" */ "./routes/loginroute.js"
+    );
     for (const i of [chatRoute, userPageRoute, loginRoute]) {
       router.registerRoute((await i).default),
         console.log("registered route..");
