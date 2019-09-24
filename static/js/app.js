@@ -7,7 +7,7 @@ import "../../assets/manifest.json";
 import _ from "./custom-elements/matspinner.js";
 import runtime from "serviceworker-webpack-plugin/lib/runtime";
 import { IDB } from "./idb.js";
-applyExternalCss("https://fonts.googleapis.com/css?family=Open+Sans");
+applyExternalCss("https://fonts.pycode.tk/open-sans.css");
 window.router = Router;
 const router = Router;
 const banner = $.id("app-banner");
