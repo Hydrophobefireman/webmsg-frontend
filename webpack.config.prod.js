@@ -102,3 +102,4 @@ module.exports = {
     new serviceWorkerPlugin({ entry: `${__dirname}/static/js/sw.js` })
   ]
 };
+

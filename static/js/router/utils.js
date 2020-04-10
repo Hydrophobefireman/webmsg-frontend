@@ -1,14 +1,14 @@
-export const isKeyValObj = a => a.constructor === Object;
+export const isKeyValObj = (a) => a.constructor === Object;
 export const trace = (a, b = "warn") => {
   console[b](`[logger]--->${a}`);
 };
-export const load = hash => {
+export const load = (hash) => {
   if ("string" == typeof hash)
     return "/" === hash[0]
       ? (location.hash = hash)
       : (location.hash = `/${hash}`);
 };
-export const Events = new class Events {
+export const Events = new (class Events {
   emit(type, detail) {
     return window.dispatchEvent(new CustomEvent(type, { detail }));
   }
@@ -27,7 +27,7 @@ export const Events = new class Events {
   constructor() {
     this.EventCache = {};
   }
-}();
+})();
 export const parseHash = (a = window.location) => {
   let b, c;
   if ("#" === a[0]) b = a.substr(1);
@@ -51,7 +51,7 @@ export const __random__ = (a = 15) => {
 export const _random = (a = 15) =>
   [...Array(a)]
     .join(".")
-    .replace(/[.]/g, b =>
+    .replace(/[.]/g, (b) =>
       (
         b ^
         (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (b / 4)))
@@ -64,7 +64,7 @@ const _s = (() => {
 export const sheet = _s;
 const _getRules = (a, b = sheet) => {
   const c = Array.from(b.rules);
-  return c.filter(d => d.selectorText === a)[0];
+  return c.filter((d) => d.selectorText === a)[0];
 };
 
 export const setattrs = (element, attributes, stylesheet = sheet) => {
@@ -127,7 +127,7 @@ export const $ = {
       ? document.querySelector(a)
       : Array.from(document.querySelectorAll(a));
   },
-  id: a => document.getElementById(a),
+  id: (a) => document.getElementById(a),
   className(a, b = !0) {
     const c = Array.from(document.getElementsByClassName(a));
     return b ? c[0] : c;
@@ -142,13 +142,13 @@ export const $ = {
   },
   get: (a, b) => a.getAttribute(b),
   set: (a, b, c) => a.setAttribute(b, c),
-  empty: a => {
+  empty: (a) => {
     let b;
     for (b = a.lastChild; b; ) a.removeChild(b), (b = a.lastChild);
-  }
+  },
 };
-export const isFunction = a => a instanceof Function;
-export const isAsync = a => "AsyncFunction" === a.constructor.name;
+export const isFunction = (a) => a instanceof Function;
+export const isAsync = (a) => "AsyncFunction" === a.constructor.name;
 export const changeCSS = (a, b, c = !1) => {
   let d;
   const e = _getRules(a);
@@ -157,13 +157,13 @@ export const changeCSS = (a, b, c = !1) => {
   d = makeObjectFromCss(b);
   for (const f of Object.keys(d)) e.style[f] = d[f];
 };
-export const makeCSS = a => {
+export const makeCSS = (a) => {
   if ("string" == typeof a) return a;
   const b = [];
   for (const c of Object.keys(a)) b.push(`${c}:${a[c]}`);
   return b.join(";");
 };
-export const makeObjectFromCss = a => {
+export const makeObjectFromCss = (a) => {
   if ("object" == typeof a) return a;
   const b = a.split(";");
   return b.reduce((c, d) => {
@@ -174,12 +174,12 @@ export const makeObjectFromCss = a => {
       : c;
   }, {});
 };
-export const urlencode = a => {
+export const urlencode = (a) => {
   if (window.URLSearchParams) {
     return new URLSearchParams(a);
   } else {
     return `${Object.keys(a)
-      .map(b => `${encodeURIComponent(b)}=${encodeURIComponent(a[b])}`)
+      .map((b) => `${encodeURIComponent(b)}=${encodeURIComponent(a[b])}`)
       .join("&")}`;
   }
 };
@@ -190,14 +190,15 @@ function isSameDay(c, d) {
     c.getDate() === d.getDate()
   );
 }
-export const stampFormat = timeStamp => {
+export const stampFormat = (timeStamp) => {
+  const now = new Date(timeStamp);
   try {
     const options = {
       hour: "numeric",
       hour12: true,
-      minute: "numeric"
+      minute: "numeric",
     };
-    const now = new Date(timeStamp);
+
     const date = new Date();
     if (now.getFullYear() !== date.getFullYear()) {
       options.year = "numeric";
@@ -205,14 +206,14 @@ export const stampFormat = timeStamp => {
     if (!isSameDay(now, date)) {
       options.month = options.day = "numeric";
     }
-    return Intl.DateTimeFormat("auto", options).format(now);
+    return Intl.DateTimeFormat("en", options).format(now);
   } catch (e) {
     return console.log(e), now.toLocaleString();
   }
 };
 
 export const _getTime = () => new Date().getTime();
-export const aptSize = a => {
+export const aptSize = (a) => {
   const b = 0 | (a / 1048576);
   if (b) return `${b} MB`;
   const c = 0 | (a / 1024);
@@ -241,7 +242,7 @@ export const makeComponent = (
   selector,
   route,
   onUnmount,
-  idx
+  idx,
 });
 export const getElement = (a, b) => {
   if (a) {

@@ -2,7 +2,7 @@ var serviceWorkerOption = {
   "assets": [
     "/chat-route-844304fec6024cbc7d69.js",
     "/loginroute-20c770297254486169a9.js",
-    "/main-f43e64e91f3c62a2db05.js",
+    "/main-1963ca1390ab43757ec4.js",
     "/user-page-7675bae44d3ba02fc21e.js",
     "/vendors~main-b5e63cfd1b227aaa109b.js",
     "/favicon.ico",
