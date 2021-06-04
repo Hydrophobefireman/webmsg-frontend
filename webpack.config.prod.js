@@ -21,36 +21,39 @@ module.exports = {
                 "@babel/preset-env",
                 {
                   corejs: "3.2.1",
-                  useBuiltIns: "usage"
+                  useBuiltIns: "usage",
                   // targets: ">0.5%,not ie 11,not op_mini all"
-                }
-              ]
+                },
+              ],
             ],
             plugins: [
               "@babel/plugin-transform-runtime",
-              "@babel/plugin-syntax-dynamic-import"
-            ]
-          }
-        }
+              "@babel/plugin-syntax-dynamic-import",
+            ],
+          },
+        },
       },
       {
         test: /\.css$/,
         use: [
           { loader: MiniCssExtractPlugin.loader },
           {
-            loader: "css-loader"
+            loader: "css-loader",
           },
           {
             loader: "postcss-loader",
-            options: { ident: "postcss", plugins: [autoPrefixPlugin()] }
-          }
-        ]
+            options: {
+              postcssOptions: { plugins: [autoPrefixPlugin()] },
+            },
+  
+          },
+        ],
       },
       {
         test: /\.(png|jpg|gif|ico|svg)$/,
-        use: [{ loader: "url-loader", options: { fallback: "file-loader" } }]
-      }
-    ]
+        use: [{ loader: "url-loader", options: { fallback: "file-loader" } }],
+      },
+    ],
   },
   entry: `${__dirname}/static/js/app.js`,
   output: { path: `${__dirname}/docs`, filename: "[name]-[contenthash].js" },
@@ -58,8 +61,8 @@ module.exports = {
   optimization: {
     minimizer: [new minifier({ parallel: !0 })],
     splitChunks: {
-      chunks: "all"
-    }
+      chunks: "all",
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -72,10 +75,10 @@ module.exports = {
         html5: !0,
         minifyCSS: !0,
         removeEmptyAttributes: !0,
-        removeRedundantAttributes: !0
-      }
+        removeRedundantAttributes: !0,
+      },
     }),
-    new webpackPwaManifest({
+    /*  new webpackPwaManifest({
       background_color: "#e3e3e3",
       description: "Web Message using WebRTC",
       display: "standalone",
@@ -83,8 +86,8 @@ module.exports = {
       icons: [
         {
           src: `${__dirname}/assets/icons/icon-512x512.png`,
-          sizes: [72, 96, 128, 144, 152, 192, 256, 384, 512]
-        }
+          sizes: [72, 96, 128, 144, 152, 192, 256, 384, 512],
+        },
       ],
       inject: !0,
       lang: "en",
@@ -92,14 +95,13 @@ module.exports = {
       start_url: "/",
       short_name: "WebMsg",
       "theme-color": "#1976d2",
-      theme_color: "#1976d2"
-    }),
+      theme_color: "#1976d2",
+    }),*/
     new MiniCssExtractPlugin({
       filename: "[name]-[hash].css",
-      chunkFilename: "[id]-[hash].css"
+      chunkFilename: "[id]-[hash].css",
     }),
     new StyleExtHtmlWebpackPlugin({ minify: true }),
-    new serviceWorkerPlugin({ entry: `${__dirname}/static/js/sw.js` })
-  ]
+    //    new serviceWorkerPlugin({ entry: `${__dirname}/static/js/sw.js` }),
+  ],
 };
-

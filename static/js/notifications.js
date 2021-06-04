@@ -1,4 +1,5 @@
-import { urlencode, $, _getTime } from "./router/utils.js";
+import { $, _getTime, urlencode } from "./router/utils.js";
+
 import { Requests } from "./ext.js";
 import { showNotification } from "./show-notification.js";
 if (!!window.Notification) {

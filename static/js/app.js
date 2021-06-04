@@ -1,12 +1,14 @@
-import { Router, applyExternalCss } from "./router/router.js";
-import { $ } from "./router/utils.js";
-import { getConnection, ProdMode, Requests } from "./ext.js";
 import "../css/main.css";
 import "../css/chat.css";
 import "../../assets/manifest.json";
-import _ from "./custom-elements/matspinner.js";
-import runtime from "serviceworker-webpack-plugin/lib/runtime";
+
+import { ProdMode, Requests, getConnection } from "./ext.js";
+import { Router, applyExternalCss } from "./router/router.js";
+
+import { $ } from "./router/utils.js";
 import { IDB } from "./idb.js";
+import _ from "./custom-elements/matspinner.js";
+
 applyExternalCss("https://fonts.pycode.tk/open-sans.css");
 window.router = Router;
 const router = Router;
@@ -26,7 +28,7 @@ const logoutRoute = {
           Router.load("/");
         }));
   },
-  textContent: "Logging you out"
+  textContent: "Logging you out",
 };
 router.registerRoute(logoutRoute);
 getConnection(router, false)
@@ -50,5 +52,5 @@ getConnection(router, false)
 const isSWReady = true;
 if (ProdMode() && isSWReady && "serviceWorker" in navigator) {
   const reg = runtime.register();
-  reg.then(e => console.log("SW registered.", e.scope));
+  reg.then((e) => console.log("SW registered.", e.scope));
 }
