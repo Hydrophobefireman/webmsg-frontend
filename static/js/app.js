@@ -50,7 +50,8 @@ getConnection(router, false)
   .then(() => (console.log("Started router loading"), router.startLoad()));
 
 const isSWReady = true;
-if (ProdMode() && isSWReady && "serviceWorker" in navigator) {
+try{if (ProdMode() && isSWReady && "serviceWorker" in navigator) {
   const reg = runtime.register();
   reg.then((e) => console.log("SW registered.", e.scope));
 }
+   }catch(e){}
