@@ -5,7 +5,7 @@ const minifier = require("terser-webpack-plugin"),
   StyleExtHtmlWebpackPlugin = require("style-ext-html-webpack-plugin"),
   serviceWorkerPlugin = require("serviceworker-webpack-plugin");
 const autoPrefixPlugin = require("autoprefixer");
-const mode = "development";
+const mode = process.env.NODE_ENV || "development";
 // const mode = "production";
 const devOrProd = (a, b) => {
   return "production" === mode ? a : b;
